@@ -1,0 +1,91 @@
+/** globals.css — 전역 스타일 시트
+ *  - Tailwind CSS 기본 import
+ *  - Google Fonts (Noto Sans KR, Outfit) 적용
+ *  - 커스텀 CSS 변수 및 유틸리티 정의
+ */
+
+/* ── Google Fonts 불러오기 (반드시 @import "tailwindcss" 보다 먼저 선언) ── */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+/* ── Tailwind CSS 기본 레이어 ── */
+@import "tailwindcss";
+
+/* ── Tailwind 커스텀 테마 설정 ── */
+@theme {
+  /* 메인 컬러 팔레트 */
+  --color-navy: #0A2540;
+  --color-navy-light: #0F3460;
+  --color-navy-dark: #061A2E;
+  --color-cyan: #00D4FF;
+  --color-cyan-light: #7AE7FF;
+  --color-cyan-dark: #00A8CC;
+  --color-slate: #94A3B8;
+  --color-slate-light: #CBD5E1;
+  --color-slate-dark: #64748B;
+  --color-cream: #F8FAFC;
+  --color-white: #FFFFFF;
+
+  /* 폰트 패밀리 */
+  --font-sans: 'Noto Sans KR', sans-serif;
+  --font-display: 'Outfit', sans-serif;
+}
+
+/* ── 기본 HTML 스타일 초기화 ── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-navy);
+  background-color: var(--color-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── 유틸리티 클래스 ── */
+
+/* 그라디언트 텍스트 효과 */
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-cyan) 0%, var(--color-cyan-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 글래스모피즘 카드 스타일 */
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 헤더 배경 블러 효과 */
+.header-blur {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(10, 37, 64, 0.08);
+}
+
+/* 섹션 간 기본 패딩 */
+.section-padding {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+
+@media (min-width: 768px) {
+  .section-padding {
+    padding-top: 7rem;
+    padding-bottom: 7rem;
+  }
+}
+
+/* 부드러운 호버 전환 효과 */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(10, 37, 64, 0.12);
+}
