@@ -18,6 +18,7 @@ interface AcademyCardProps {
   features: string[];   // 주요 커리큘럼 항목들
   index?: number;       // 애니메이션 딜레이
   featured?: boolean;   // 추천 과정 여부 (강조 표시)
+  onApply?: () => void; // 수강 신청 클릭 콜백
 }
 
 export default function AcademyCard({
@@ -28,6 +29,7 @@ export default function AcademyCard({
   features,
   index = 0,
   featured = false,
+  onApply,
 }: AcademyCardProps) {
   return (
     <motion.div
@@ -115,6 +117,7 @@ export default function AcademyCard({
 
       {/* ── 수강 신청 버튼 ── */}
       <button
+        onClick={onApply}
         className={`w-full py-3 rounded-xl font-semibold text-sm transition-all duration-300 ${
           featured
             ? "bg-gradient-to-r from-cyan to-cyan-dark text-white hover:shadow-lg hover:shadow-cyan/25"

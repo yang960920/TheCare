@@ -1,15 +1,15 @@
-/** app/admin/academy/page.tsx — 아카데미 과정 관리 */
+/** app/admin/academy/page.tsx — 아카데미 과정 관리 + 수강 신청 목록 */
 "use client";
 import { useState } from "react";
-import { useAdminStore, AcademyCourse } from "@/store/adminStore";
+import { useAdminStore, AcademyCourse, AcademyInquiry } from "@/store/adminStore";
 import PageHeader from "@/components/admin/PageHeader";
 import SlidePanel from "@/components/admin/SlidePanel";
 import ToggleSwitch from "@/components/admin/ToggleSwitch";
 import ConfirmModal from "@/components/admin/ConfirmModal";
-import { Plus, Pencil, Trash2, GraduationCap } from "lucide-react";
+import { Plus, Pencil, Trash2, GraduationCap, Users } from "lucide-react";
 
 export default function AdminAcademyPage() {
-  const { courses, addCourse, updateCourse, deleteCourse, toggleCourseVisibility, addToast } = useAdminStore();
+  const { courses, addCourse, updateCourse, deleteCourse, toggleCourseVisibility, academyInquiries, updateAcademyInquiryStatus, addToast } = useAdminStore();
   const [editing, setEditing] = useState<AcademyCourse | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
@@ -28,6 +28,11 @@ export default function AdminAcademyPage() {
       addToast("과정이 수정되었습니다.");
     }
     setEditing(null); setIsNew(false);
+  };
+
+  const handleInquiryStatusChange = (id: string, status: AcademyInquiry["status"]) => {
+    updateAcademyInquiryStatus(id, status);
+    addToast(`상태가 '${status}'(으)로 변경되었습니다.`);
   };
 
   return (
@@ -63,6 +68,58 @@ export default function AdminAcademyPage() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* ── 수강 신청 목록 ── */}
+      <div className="mt-10">
+        <div className="flex items-center gap-2 mb-4">
+          <Users size={20} className="text-cyan-600" />
+          <h2 className="text-lg font-bold text-slate-900">수강 신청 목록</h2>
+          <span className="ml-2 px-2 py-0.5 bg-cyan-50 text-cyan-600 text-xs font-bold rounded-full">{academyInquiries.length}</span>
+        </div>
+
+        {academyInquiries.length === 0 ? (
+          <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
+            <p className="text-slate-400 text-sm">아직 수강 신청이 없습니다</p>
+          </div>
+        ) : (
+          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50/50">
+                  <th className="text-left px-4 py-3 font-medium text-slate-500">접수일</th>
+                  <th className="text-left px-4 py-3 font-medium text-slate-500">고객명</th>
+                  <th className="text-left px-4 py-3 font-medium text-slate-500">연락처</th>
+                  <th className="text-left px-4 py-3 font-medium text-slate-500">과정</th>
+                  <th className="text-left px-4 py-3 font-medium text-slate-500">메모</th>
+                  <th className="text-left px-4 py-3 font-medium text-slate-500">상태</th>
+                </tr>
+              </thead>
+              <tbody>
+                {academyInquiries.map((inq) => (
+                  <tr key={inq.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                    <td className="px-4 py-3 text-slate-400 text-xs">{inq.createdAt}</td>
+                    <td className="px-4 py-3 font-medium text-slate-900">{inq.customerName}</td>
+                    <td className="px-4 py-3 text-slate-600">{inq.phone}</td>
+                    <td className="px-4 py-3">
+                      <span className="text-xs px-2 py-0.5 bg-cyan-50 text-cyan-700 rounded-full">{inq.courseTitle}</span>
+                    </td>
+                    <td className="px-4 py-3 text-slate-500 text-xs max-w-[200px] truncate">{inq.memo || "-"}</td>
+                    <td className="px-4 py-3">
+                      <select
+                        value={inq.status}
+                        onChange={(e) => handleInquiryStatusChange(inq.id, e.target.value as AcademyInquiry["status"])}
+                        className="text-xs border border-slate-200 rounded-lg px-2 py-1 outline-none focus:border-cyan-500 bg-white"
+                      >
+                        <option>미확인</option><option>확인</option><option>완료</option>
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       <SlidePanel isOpen={isNew || !!editing} onClose={() => { setEditing(null); setIsNew(false); }} title={isNew ? "과정 등록" : "과정 수정"}>

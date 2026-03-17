@@ -113,6 +113,17 @@ export interface PopupItem {
   hideToday: boolean;
 }
 
+/** 아카데미 수강 신청 */
+export interface AcademyInquiry {
+  id: string;
+  customerName: string;
+  phone: string;
+  courseTitle: string;
+  memo: string;
+  status: "미확인" | "확인" | "완료";
+  createdAt: string;
+}
+
 /** 포인트 적립 정책 텍스트 */
 export interface PointPolicy {
   text: string;
@@ -136,6 +147,7 @@ interface AdminState {
   courses: AcademyCourse[];
   events: PointEvent[];
   quotes: QuoteInquiry[];
+  academyInquiries: AcademyInquiry[];
   company: CompanyInfo;
   popups: PopupItem[];
   pointPolicy: PointPolicy;
@@ -168,8 +180,13 @@ interface AdminState {
   toggleEventVisibility: (id: string) => void;
 
   /* 견적 문의 액션 */
+  addQuote: (quote: Omit<QuoteInquiry, "id">) => void;
   updateQuoteStatus: (id: string, status: QuoteInquiry["status"]) => void;
   updateQuoteContact: (id: string, contactDate: string, contactMemo: string) => void;
+
+  /* 아카데미 수강 신청 액션 */
+  addAcademyInquiry: (inquiry: Omit<AcademyInquiry, "id">) => void;
+  updateAcademyInquiryStatus: (id: string, status: AcademyInquiry["status"]) => void;
 
   /* 회사 정보 액션 */
   updateCompany: (data: Partial<CompanyInfo>) => void;
@@ -273,6 +290,7 @@ export const useAdminStore = create<AdminState>((set) => ({
   courses: INITIAL_COURSES,
   events: INITIAL_EVENTS,
   quotes: INITIAL_QUOTES,
+  academyInquiries: [],
   company: INITIAL_COMPANY,
   popups: INITIAL_POPUPS,
   pointPolicy: INITIAL_POLICY,
@@ -355,6 +373,10 @@ export const useAdminStore = create<AdminState>((set) => ({
     })),
 
   /* ── 견적 문의 상태 + 연락 이력 ── */
+  addQuote: (quote) =>
+    set((s) => ({
+      quotes: [...s.quotes, { ...quote, id: `q${Date.now()}` }],
+    })),
   updateQuoteStatus: (id, status) =>
     set((s) => ({
       quotes: s.quotes.map((q) => (q.id === id ? { ...q, status } : q)),
@@ -364,6 +386,18 @@ export const useAdminStore = create<AdminState>((set) => ({
     set((s) => ({
       quotes: s.quotes.map((q) =>
         q.id === id ? { ...q, contactDate, contactMemo } : q
+      ),
+    })),
+
+  /* ── 아카데미 수강 신청 ── */
+  addAcademyInquiry: (inquiry) =>
+    set((s) => ({
+      academyInquiries: [...s.academyInquiries, { ...inquiry, id: `ai${Date.now()}` }],
+    })),
+  updateAcademyInquiryStatus: (id, status) =>
+    set((s) => ({
+      academyInquiries: s.academyInquiries.map((a) =>
+        a.id === id ? { ...a, status } : a
       ),
     })),
 

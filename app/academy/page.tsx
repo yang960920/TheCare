@@ -5,12 +5,15 @@
  *  2. 아카데미 소개 배너 (이미지 + 텍스트)
  *  3. 수강 과정 카드 3개 (기초/전문/마스터)
  *  4. CTA 섹션 — 수강 신청 유도
+ *  5. 수강 신청 팝업 모달
  */
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import AcademyCard from "@/components/ui/AcademyCard";
+import { useAdminStore } from "@/store/adminStore";
 
 /* ── 수강 과정 더미 데이터 3개 ── */
 const COURSES = [
@@ -62,6 +65,57 @@ const COURSES = [
 ];
 
 export default function AcademyPage() {
+  /* ── 팝업 상태 ── */
+  const [showModal, setShowModal] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<typeof COURSES[0] | null>(null);
+
+  /* ── 상담 폼 상태 ── */
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [memo, setMemo] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  const { addAcademyInquiry, addToast } = useAdminStore();
+
+  /** 수강 신청 팝업 열기 */
+  const openApplyModal = (course?: typeof COURSES[0]) => {
+    setSelectedCourse(course || null);
+    setShowModal(true);
+    setSubmitted(false);
+    setName("");
+    setPhone("");
+    setMemo("");
+  };
+
+  /** 수강 신청 제출 */
+  const handleSubmit = () => {
+    if (!name.trim()) {
+      addToast("이름을 입력해주세요.", "error");
+      return;
+    }
+    if (!phone.trim()) {
+      addToast("연락처를 입력해주세요.", "error");
+      return;
+    }
+
+    addAcademyInquiry({
+      customerName: name,
+      phone,
+      courseTitle: selectedCourse?.title || "일반 상담",
+      memo,
+      status: "미확인",
+      createdAt: new Date().toISOString().split("T")[0],
+    });
+
+    setSubmitted(true);
+    addToast("수강 신청이 완료되었습니다!");
+  };
+
+  /** 모달 닫기 */
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
   return (
     <>
       {/* ═══════════════════════════════════════════════
@@ -183,7 +237,12 @@ export default function AcademyPage() {
           {/* 과정 카드 그리드 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             {COURSES.map((course, index) => (
-              <AcademyCard key={course.title} {...course} index={index} />
+              <AcademyCard
+                key={course.title}
+                {...course}
+                index={index}
+                onApply={() => openApplyModal(course)}
+              />
             ))}
           </div>
         </div>
@@ -207,7 +266,10 @@ export default function AcademyPage() {
               궁금한 점이 있으시면 언제든지 연락주세요. 친절하게 상담해 드리겠습니다.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-8 py-4 bg-gradient-to-r from-cyan to-cyan-dark text-white font-bold rounded-xl hover:shadow-xl hover:shadow-cyan/30 transition-all duration-300">
+              <button
+                onClick={() => openApplyModal()}
+                className="px-8 py-4 bg-gradient-to-r from-cyan to-cyan-dark text-white font-bold rounded-xl hover:shadow-xl hover:shadow-cyan/30 transition-all duration-300"
+              >
                 수강 상담 신청
               </button>
               <a
@@ -223,6 +285,165 @@ export default function AcademyPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════════════
+       *  수강 신청 팝업 모달
+       * ═══════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {showModal && (
+          <>
+            {/* 오버레이 */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={closeModal}
+              className="fixed inset-0 bg-black/50 z-50"
+            />
+
+            {/* 모달 */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            >
+              <div
+                className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {!submitted ? (
+                  <>
+                    {/* ── 과정 정보 헤더 ── */}
+                    <div className="bg-gradient-to-br from-navy to-navy-light p-6 md:p-8 rounded-t-2xl">
+                      {/* 닫기 버튼 */}
+                      <div className="flex justify-end mb-2">
+                        <button
+                          onClick={closeModal}
+                          className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                        >
+                          <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+
+                      <h3 className="font-display font-bold text-xl text-white mb-1">
+                        수강 신청
+                      </h3>
+
+                      {selectedCourse ? (
+                        <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-bold text-white text-base">{selectedCourse.title}</span>
+                            <span className="text-cyan-light font-bold text-sm">{selectedCourse.price}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-white/60 text-sm">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {selectedCourse.duration}
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-white/60 text-sm mt-2">
+                          관심 있는 과정에 대해 상담해 드립니다
+                        </p>
+                      )}
+                    </div>
+
+                    {/* ── 신청 폼 ── */}
+                    <div className="p-6 md:p-8">
+                      <div className="space-y-4">
+                        {/* 이름 */}
+                        <div>
+                          <label className="block text-sm font-medium text-navy mb-1.5">
+                            이름 <span className="text-red-400">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="홍길동"
+                            className="w-full px-4 py-3.5 rounded-xl border border-slate-light focus:border-cyan focus:ring-2 focus:ring-cyan/20 outline-none transition-all text-sm text-navy placeholder:text-slate"
+                          />
+                        </div>
+
+                        {/* 연락처 */}
+                        <div>
+                          <label className="block text-sm font-medium text-navy mb-1.5">
+                            연락처 <span className="text-red-400">*</span>
+                          </label>
+                          <input
+                            type="tel"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            placeholder="010-1234-5678"
+                            className="w-full px-4 py-3.5 rounded-xl border border-slate-light focus:border-cyan focus:ring-2 focus:ring-cyan/20 outline-none transition-all text-sm text-navy placeholder:text-slate"
+                          />
+                        </div>
+
+                        {/* 추가 문의 */}
+                        <div>
+                          <label className="block text-sm font-medium text-navy mb-1.5">
+                            추가 문의사항 <span className="text-navy/40">(선택)</span>
+                          </label>
+                          <textarea
+                            rows={3}
+                            value={memo}
+                            onChange={(e) => setMemo(e.target.value)}
+                            placeholder="궁금하신 점을 자유롭게 적어주세요"
+                            className="w-full px-4 py-3 rounded-xl border border-slate-light focus:border-cyan focus:ring-2 focus:ring-cyan/20 outline-none transition-all text-sm text-navy placeholder:text-slate resize-none"
+                          />
+                        </div>
+
+                        {/* 신청 버튼 */}
+                        <button
+                          type="button"
+                          onClick={handleSubmit}
+                          className="w-full py-4 bg-gradient-to-r from-cyan to-cyan-dark text-white font-bold rounded-xl hover:shadow-lg hover:shadow-cyan/25 transition-all duration-300 text-base"
+                        >
+                          수강 신청하기
+                        </button>
+
+                        <p className="text-center text-navy/40 text-xs">
+                          신청 후 담당자가 상담 연락을 드립니다
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  /* ── 신청 완료 화면 ── */
+                  <div className="p-8 md:p-12 text-center">
+                    <div className="w-16 h-16 rounded-full bg-cyan/10 flex items-center justify-center mx-auto mb-5">
+                      <svg className="w-8 h-8 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <h3 className="font-display font-bold text-xl text-navy mb-3">
+                      수강 신청이 완료되었습니다!
+                    </h3>
+                    <p className="text-navy/50 text-sm mb-6 leading-relaxed">
+                      {selectedCourse
+                        ? `${selectedCourse.title}에 대해 담당자가 빠른 시일 내에 연락드리겠습니다.`
+                        : "담당자가 빠른 시일 내에 연락드리겠습니다."}
+                      <br />
+                      감사합니다.
+                    </p>
+                    <button
+                      onClick={closeModal}
+                      className="px-8 py-3 bg-gradient-to-r from-cyan to-cyan-dark text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-cyan/25 transition-all"
+                    >
+                      확인
+                    </button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }
