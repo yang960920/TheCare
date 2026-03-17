@@ -13,7 +13,7 @@ import { motion } from "framer-motion";
 interface AcademyCardProps {
   title: string;        // 과정명
   duration: string;     // 교육 기간
-  price: string;        // 수강료
+
   description: string;  // 과정 설명
   features: string[];   // 주요 커리큘럼 항목들
   index?: number;       // 애니메이션 딜레이
@@ -24,7 +24,6 @@ interface AcademyCardProps {
 export default function AcademyCard({
   title,
   duration,
-  price,
   description,
   features,
   index = 0,
@@ -81,13 +80,6 @@ export default function AcademyCard({
           <span className={`text-sm font-medium ${featured ? "text-white/80" : "text-navy/70"}`}>
             {duration}
           </span>
-        </div>
-        <div
-          className={`text-lg font-display font-bold ${
-            featured ? "text-cyan-light" : "text-cyan-dark"
-          }`}
-        >
-          {price}
         </div>
       </div>
 

@@ -55,24 +55,116 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  /* ── 관리자 로그인 상태 ── */
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [loginId, setLoginId] = useState("");
+  const [loginPw, setLoginPw] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  /* sessionStorage에서 로그인 상태 복원 */
+  React.useEffect(() => {
+    const saved = sessionStorage.getItem("adminLoggedIn");
+    if (saved === "true") setIsAdminLoggedIn(true);
+    setIsLoaded(true);
+  }, []);
+
+  /* 로그인 처리 */
+  const handleAdminLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loginId === "admin" && loginPw === "thecare1234") {
+      setIsAdminLoggedIn(true);
+      sessionStorage.setItem("adminLoggedIn", "true");
+      setLoginError("");
+    } else {
+      setLoginError("아이디 또는 비밀번호가 올바르지 않습니다.");
+    }
+  };
+
+  /* 로그아웃 처리 */
+  const handleAdminLogout = () => {
+    setIsAdminLoggedIn(false);
+    sessionStorage.removeItem("adminLoggedIn");
+  };
+
   /** 현재 경로가 메뉴 항목과 일치하는지 확인 */
   const isActive = (href: string) =>
     href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
 
+  /* ── 로딩 중 ── */
+  if (!isLoaded) return null;
+
+  /* ══════════════════════════════════
+   *  관리자 로그인 페이지 (미인증 시)
+   * ══════════════════════════════════ */
+  if (!isAdminLoggedIn) {
+    return (
+      <div className="min-h-screen bg-[#0F172A] flex items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="w-full max-w-sm"
+        >
+          {/* 로고 */}
+          <div className="text-center mb-8">
+            <img src="/logo.png" alt="THE CARE" className="h-14 mx-auto mb-4 object-contain" />
+            <p className="text-slate-400 text-sm">관리자 로그인</p>
+          </div>
+
+          {/* 로그인 폼 */}
+          <form onSubmit={handleAdminLogin} className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5">아이디</label>
+              <input
+                type="text"
+                value={loginId}
+                onChange={(e) => setLoginId(e.target.value)}
+                placeholder="아이디 입력"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/30 focus:border-cyan-400/50"
+                autoFocus
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5">비밀번호</label>
+              <input
+                type="password"
+                value={loginPw}
+                onChange={(e) => setLoginPw(e.target.value)}
+                placeholder="비밀번호 입력"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/30 focus:border-cyan-400/50"
+              />
+            </div>
+
+            {loginError && (
+              <p className="text-red-400 text-sm text-center">{loginError}</p>
+            )}
+
+            <button
+              type="submit"
+              className="w-full py-3 bg-gradient-to-r from-cyan-400 to-cyan-600 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-cyan-500/25 transition-all duration-300"
+            >
+              로그인
+            </button>
+          </form>
+        </motion.div>
+      </div>
+    );
+  }
+
   /* ── 사이드바 콘텐츠 (데스크탑/모바일 공용) ── */
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-      {/* 로고 영역 */}
-      <div className="px-5 py-6 border-b border-white/5">
-        <Link href="/admin" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-cyan-600 flex items-center justify-center">
-            <Wrench size={16} className="text-white" />
-          </div>
-          <div>
-            <div className="text-white font-bold text-sm">CleanMaster</div>
-            <div className="text-slate-500 text-[10px]">관리자 패널</div>
-          </div>
+      {/* 로고 영역 — 메인 홈페이지로 이동 */}
+      <div className="px-5 py-5 border-b border-white/5">
+        <Link href="/" className="flex items-center gap-2.5">
+          <img
+            src="/logo.png"
+            alt="THE CARE"
+            className="h-10 w-auto object-contain"
+          />
         </Link>
+        <div className="text-slate-500 text-[10px] mt-1 ml-1">관리자 패널</div>
       </div>
 
       {/* 메뉴 항목 리스트 */}
@@ -101,7 +193,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* 하단 로그아웃 버튼 */}
       <div className="px-3 py-4 border-t border-white/5">
-        <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-500 hover:text-white hover:bg-white/5 transition-colors w-full">
+        <button onClick={handleAdminLogout} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-500 hover:text-white hover:bg-white/5 transition-colors w-full">
           <LogOut size={18} />
           <span>로그아웃</span>
         </button>

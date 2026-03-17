@@ -7,6 +7,7 @@
  *  - 저작권 표시
  */
 import Link from "next/link";
+import Image from "next/image";
 
 /* ── 빠른 링크 목록 정의 ── */
 const QUICK_LINKS = [
@@ -35,19 +36,17 @@ export default function Footer() {
           {/* ── 회사 정보 영역 ── */}
           <div className="lg:col-span-1">
             {/* 로고 */}
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan to-cyan-dark flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                  />
-                </svg>
-              </div>
-              <span className="font-display font-bold text-lg">CleanMaster</span>
+            <Link href="/" className="flex items-center mb-4">
+              <Image
+                src="/logo.png"
+                alt="더케어 로고"
+                width={555}
+                height={219}
+                className="h-24 w-auto object-contain"
+              />
             </Link>
             <p className="text-white/60 text-sm leading-relaxed">
-              프리미엄 청소 전문 기업 클린마스터입니다.<br />
+              프리미엄 청소 전문 기업 더케어입니다.<br />
               깨끗한 공간, 건강한 생활을 약속합니다.
             </p>
           </div>
@@ -127,7 +126,7 @@ export default function Footer() {
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-white/40">
-            <p>© 2025 CleanMaster. All rights reserved.</p>
+            <p>© 2025 더케어. All rights reserved.</p>
             <p>사업자등록번호: 123-45-67890 | 대표: 홍길동</p>
           </div>
         </div>

@@ -20,7 +20,6 @@ const COURSES = [
   {
     title: "기초 과정",
     duration: "4주 (주 2회)",
-    price: "120만원",
     description:
       "청소 업계 입문자를 위한 기초 과정입니다. 청소 장비 사용법부터 기본 시공 기술까지 체계적으로 배웁니다.",
     features: [
@@ -35,7 +34,6 @@ const COURSES = [
   {
     title: "전문가 과정",
     duration: "8주 (주 3회)",
-    price: "280만원",
     description:
       "현장 경험을 기반으로 전문 시공 기술을 심화 학습하는 과정입니다. 수료 후 바로 현장 투입이 가능합니다.",
     features: [
@@ -50,7 +48,6 @@ const COURSES = [
   {
     title: "마스터 과정",
     duration: "12주 (주 3회)",
-    price: "450만원",
     description:
       "독립 사업자 또는 관리자를 목표로 하는 최상위 과정입니다. 경영 노하우와 고급 시공 기술을 동시에 습득합니다.",
     features: [
@@ -337,7 +334,6 @@ export default function AcademyPage() {
                         <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-xl p-4">
                           <div className="flex items-center justify-between mb-2">
                             <span className="font-bold text-white text-base">{selectedCourse.title}</span>
-                            <span className="text-cyan-light font-bold text-sm">{selectedCourse.price}</span>
                           </div>
                           <div className="flex items-center gap-1.5 text-white/60 text-sm">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

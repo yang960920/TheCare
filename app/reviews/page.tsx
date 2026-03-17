@@ -1,17 +1,20 @@
-/** app/reviews/page.tsx — 고객 후기 페이지 (관리자 답변 표시 기능 포함)
+/** app/reviews/page.tsx — 고객 후기 페이지 (관리자 답변 표시 + 후기 작성 기능)
  *
  *  섹션 구성:
  *  1. 페이지 히어로 — 후기 타이틀 배너
  *  2. 필터 탭 (전체 / 서비스별)
  *  3. 리뷰 카드 그리드
  *  4. 후기 클릭 시 상세 모달 (관리자 답변 표시)
+ *  5. 후기 작성 (로그인 필수)
  */
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import ReviewCard from "@/components/ui/ReviewCard";
-import { X, Star, MessageCircle } from "lucide-react";
+import { X, Star, MessageCircle, PenLine } from "lucide-react";
+import { useAuthStore } from "@/store/authStore";
 
 /* ── 필터 탭 목록 ── */
 const FILTER_TABS = ["전체", "줄눈 시공", "입주 청소", "탄성 코트", "나노 코팅", "새집증후군"];
@@ -103,16 +106,79 @@ const ALL_REVIEWS: ReviewData[] = [
 ];
 
 export default function ReviewsPage() {
+  const router = useRouter();
+  const { isLoggedIn, user, addReview, userReviews } = useAuthStore();
+
   /* ── 현재 선택된 필터 탭 상태 ── */
   const [activeFilter, setActiveFilter] = useState("전체");
   /* ── 선택된 후기 (상세 모달용) ── */
   const [selectedReview, setSelectedReview] = useState<ReviewData | null>(null);
 
+  /* ── 후기 작성 모달 상태 ── */
+  const [showWriteModal, setShowWriteModal] = useState(false);
+  const [writeRating, setWriteRating] = useState(5);
+  const [writeService, setWriteService] = useState("입주 청소");
+  const [writeContent, setWriteContent] = useState("");
+  const [writeError, setWriteError] = useState("");
+  const [writeSuccess, setWriteSuccess] = useState(false);
+
+  /* ── 사용자 작성 후기를 ReviewData 형태로 변환 ── */
+  const userReviewsConverted: ReviewData[] = userReviews.map((r) => ({
+    name: user?.nickname || "사용자",
+    rating: r.rating,
+    serviceType: r.serviceType,
+    content: r.content,
+    adminReply: "",
+    adminReplyDate: "",
+  }));
+
+  /* ── 전체 리뷰 = 기존 더미 + 사용자 작성 ── */
+  const combinedReviews = [...userReviewsConverted, ...ALL_REVIEWS];
+
   /* ── 선택된 탭에 따라 리뷰 필터링 ── */
   const filteredReviews =
     activeFilter === "전체"
-      ? ALL_REVIEWS
-      : ALL_REVIEWS.filter((r) => r.serviceType === activeFilter);
+      ? combinedReviews
+      : combinedReviews.filter((r) => r.serviceType === activeFilter);
+
+  /* ── 후기 작성 버튼 클릭 ── */
+  const handleWriteClick = () => {
+    if (!isLoggedIn) {
+      router.push("/auth");
+      return;
+    }
+    setShowWriteModal(true);
+    setWriteRating(5);
+    setWriteService("입주 청소");
+    setWriteContent("");
+    setWriteError("");
+    setWriteSuccess(false);
+  };
+
+  /* ── 후기 제출 ── */
+  const handleWriteSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!writeContent.trim()) {
+      setWriteError("후기 내용을 작성해주세요.");
+      return;
+    }
+    if (writeContent.trim().length < 10) {
+      setWriteError("후기는 최소 10자 이상 작성해주세요.");
+      return;
+    }
+
+    addReview({
+      serviceType: writeService,
+      rating: writeRating,
+      content: writeContent.trim(),
+    });
+
+    setWriteSuccess(true);
+    setTimeout(() => {
+      setShowWriteModal(false);
+      setWriteSuccess(false);
+    }, 2000);
+  };
 
   return (
     <>
@@ -132,8 +198,17 @@ export default function ReviewsPage() {
               고객 후기
             </h1>
             <p className="text-white/60 text-base md:text-lg max-w-xl">
-              클린마스터의 서비스를 경험하신 고객님들의 생생한 이야기
+              더케어의 서비스를 경험하신 고객님들의 생생한 이야기
             </p>
+
+            {/* 후기 작성 버튼 */}
+            <button
+              onClick={handleWriteClick}
+              className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-cyan to-cyan-dark text-white text-sm font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan/25 transition-all duration-300"
+            >
+              <PenLine size={16} />
+              후기 작성하기
+            </button>
           </motion.div>
         </div>
       </section>
@@ -277,6 +352,139 @@ export default function ReviewsPage() {
                     </div>
                   )}
                 </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ═══════════════════════════════════════════════
+       *  후기 작성 모달 (로그인 시에만 표시)
+       * ═══════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {showWriteModal && (
+          <>
+            {/* 오버레이 */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowWriteModal(false)}
+              className="fixed inset-0 bg-black/50 z-50"
+            />
+            {/* 모달 본체 */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 30 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            >
+              <div
+                className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {writeSuccess ? (
+                  <div className="p-8 text-center">
+                    <div className="w-16 h-16 rounded-full bg-cyan/10 flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-8 h-8 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <h3 className="font-display font-bold text-xl text-navy mb-2">후기가 등록되었습니다!</h3>
+                    <p className="text-navy/60 text-sm">
+                      포인트 <span className="text-cyan font-bold">5,000P</span>가 적립되었습니다.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    {/* 모달 헤더 */}
+                    <div className="flex items-center justify-between p-6 border-b border-slate-100">
+                      <h3 className="text-lg font-bold text-navy">후기 작성</h3>
+                      <button
+                        onClick={() => setShowWriteModal(false)}
+                        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+
+                    {/* 폼 */}
+                    <form onSubmit={handleWriteSubmit} className="p-6 space-y-5">
+                      {/* 별점 선택 */}
+                      <div>
+                        <label className="block text-sm font-semibold text-navy mb-2">별점</label>
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <button
+                              key={s}
+                              type="button"
+                              onClick={() => setWriteRating(s)}
+                              className="transition-transform hover:scale-110"
+                            >
+                              <Star
+                                size={28}
+                                className={
+                                  s <= writeRating
+                                    ? "text-amber-400 fill-amber-400"
+                                    : "text-slate-200"
+                                }
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 서비스 유형 */}
+                      <div>
+                        <label className="block text-sm font-semibold text-navy mb-2">서비스 유형</label>
+                        <select
+                          value={writeService}
+                          onChange={(e) => setWriteService(e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan/30 focus:border-cyan"
+                        >
+                          {FILTER_TABS.filter((t) => t !== "전체").map((t) => (
+                            <option key={t} value={t}>{t}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* 후기 내용 */}
+                      <div>
+                        <label className="block text-sm font-semibold text-navy mb-2">후기 내용</label>
+                        <textarea
+                          value={writeContent}
+                          onChange={(e) => setWriteContent(e.target.value)}
+                          placeholder="서비스 이용 후기를 작성해주세요 (최소 10자)"
+                          rows={4}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan/30 focus:border-cyan resize-none"
+                        />
+                      </div>
+
+                      {/* 포인트 적립 안내 */}
+                      <div className="bg-cyan/5 border border-cyan/15 rounded-xl p-3">
+                        <div className="flex items-center gap-2 text-sm text-navy/70">
+                          <svg className="w-4 h-4 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          후기 작성 시 <span className="text-cyan font-bold">5,000P</span> 적립!
+                        </div>
+                      </div>
+
+                      {/* 에러 메시지 */}
+                      {writeError && (
+                        <p className="text-red-500 text-sm text-center">{writeError}</p>
+                      )}
+
+                      {/* 제출 버튼 */}
+                      <button
+                        type="submit"
+                        className="w-full py-3.5 bg-gradient-to-r from-cyan to-cyan-dark text-white font-bold rounded-xl hover:shadow-lg hover:shadow-cyan/25 transition-all duration-300"
+                      >
+                        후기 등록하기
+                      </button>
+                    </form>
+                  </>
+                )}
               </div>
             </motion.div>
           </>
