@@ -14,6 +14,7 @@ import DataTable, { Column } from "@/components/admin/DataTable";
 import StatusBadge from "@/components/admin/StatusBadge";
 import { motion, AnimatePresence } from "framer-motion";
 import { Download, X, Phone, CalendarDays, Save } from "lucide-react";
+import { formatDate } from "@/lib/utils";
 
 export default function AdminQuotesPage() {
   const { quotes, updateQuoteStatus, updateQuoteContact, addToast } = useAdminStore();
@@ -44,7 +45,7 @@ export default function AdminQuotesPage() {
   };
 
   const columns: Column<QuoteInquiry>[] = [
-    { key: "date", label: "접수일", render: (q) => <span className="text-slate-500 text-xs">{q.createdAt}</span>, className: "w-24" },
+    { key: "date", label: "접수일", render: (q) => <span className="text-slate-500 text-xs">{formatDate(q.createdAt)}</span>, className: "w-24" },
     { key: "name", label: "고객명", render: (q) => <span className="font-medium text-slate-900">{q.customerName}</span> },
     { key: "phone", label: "연락처", render: (q) => <span className="text-slate-600">{q.phone}</span> },
     { key: "service", label: "서비스", render: (q) => <span className="text-xs px-2 py-0.5 bg-slate-100 rounded-full text-slate-600">{q.serviceType}</span> },
@@ -61,7 +62,7 @@ export default function AdminQuotesPage() {
     ), className: "w-24" },
     { key: "contact", label: "연락일", render: (q) => (
       q.contactDate
-        ? <span className="text-xs text-emerald-600 flex items-center gap-1"><Phone size={10} />{q.contactDate}</span>
+        ? <span className="text-xs text-emerald-600 flex items-center gap-1"><Phone size={10} />{formatDate(q.contactDate)}</span>
         : <span className="text-xs text-slate-300">미연락</span>
     ), className: "w-24" },
   ];
@@ -98,7 +99,7 @@ export default function AdminQuotesPage() {
                     <div>📞 {selected.phone}</div>
                     <div>🏠 {selected.area}</div>
                     <div>🔧 {selected.serviceType}</div>
-                    <div>📅 {selected.createdAt}</div>
+                    <div>📅 {formatDate(selected.createdAt)}</div>
                   </div>
                   {selected.memo && <p className="text-sm text-slate-500 pt-2 border-t border-slate-200">💬 {selected.memo}</p>}
                 </div>

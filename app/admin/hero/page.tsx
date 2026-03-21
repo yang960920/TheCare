@@ -7,7 +7,7 @@
  */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAdminStore } from "@/store/adminStore";
 import PageHeader from "@/components/admin/PageHeader";
@@ -16,6 +16,11 @@ import { Save, Eye } from "lucide-react";
 export default function AdminHeroPage() {
   const { hero, updateHero, addToast } = useAdminStore();
   const [form, setForm] = useState({ ...hero });
+
+  // loadAll() 완료 후 폼 상태 동기화
+  useEffect(() => {
+    if (hero.headline) setForm({ ...hero });
+  }, [hero]);
 
   /** 폼 필드 변경 핸들러 */
   const handleChange = (key: string, value: string) => {

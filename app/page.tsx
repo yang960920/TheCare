@@ -9,6 +9,7 @@
  */
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -73,35 +74,26 @@ const SERVICES = [
   },
 ];
 
-/* ── 고객 후기 더미 데이터 3개 ── */
-const REVIEWS = [
-  {
-    name: "김서영",
-    rating: 5,
-    serviceType: "입주 청소",
-    content:
-      "이사 전 입주 청소를 맡겼는데, 정말 새 집처럼 깨끗해졌어요. 구석구석 꼼꼼하게 해주셔서 감동이었습니다.",
-  },
-  {
-    name: "박준혁",
-    rating: 5,
-    serviceType: "줄눈 시공",
-    content:
-      "화장실 줄눈이 까맣게 변해서 고민이었는데, 시공 후 완전 새것처럼 변했습니다. 가격도 합리적이었어요.",
-  },
-  {
-    name: "이미경",
-    rating: 4,
-    serviceType: "나노 코팅",
-    content:
-      "주방 상판에 나노 코팅을 했는데 물때가 안 끼고 관리가 정말 편해졌어요. 추천합니다!",
-  },
-];
+/* ── 리뷰 & 통계 타입 ── */
+interface Review { id: string; customerName: string; rating: number; serviceType: string; content: string; visible: boolean; }
+interface Stat { label: string; value: string; }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  *  메인 홈 페이지 컴포넌트
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 export default function HomePage() {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [stats, setStats] = useState<Stat[]>([]);
+
+  useEffect(() => {
+    fetch("/api/reviews").then(r => r.json()).then((data: Review[]) => {
+      setReviews(data.filter(r => r.visible).slice(0, 3));
+    }).catch(() => {});
+    fetch("/api/company").then(r => r.json()).then(data => {
+      if (data.stats) setStats(data.stats);
+    }).catch(() => {});
+  }, []);
+
   return (
     <>
       {/* ═══════════════════════════════════════════════
@@ -235,13 +227,13 @@ export default function HomePage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {/* 통계 항목들 (더미 데이터) */}
-            {[
-              { number: "15,000+", label: "시공 완료 건수" },
-              { number: "98%", label: "고객 만족도" },
-              { number: "12년", label: "업계 경력" },
-              { number: "200+", label: "전문 기술 인력" },
-            ].map((stat, index) => (
+            {/* 통계 항목들 (DB에서 로드) */}
+            {(stats.length > 0 ? stats : [
+              { value: "15,000+", label: "시공 완료 건수" },
+              { value: "98%", label: "고객 만족도" },
+              { value: "12년", label: "업계 경력" },
+              { value: "200+", label: "전문 기술 인력" },
+            ]).map((stat, index) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}
@@ -251,7 +243,7 @@ export default function HomePage() {
                 className="text-center"
               >
                 <div className="font-display font-black text-3xl md:text-4xl lg:text-5xl text-cyan mb-2">
-                  {stat.number}
+                  {stat.value}
                 </div>
                 <div className="text-white/60 text-sm md:text-base">{stat.label}</div>
               </motion.div>
@@ -294,8 +286,8 @@ export default function HomePage() {
 
           {/* 리뷰 카드 그리드 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {REVIEWS.map((review, index) => (
-              <ReviewCard key={review.name} {...review} index={index} />
+            {reviews.map((review, index) => (
+              <ReviewCard key={review.id} name={review.customerName} rating={review.rating} serviceType={review.serviceType} content={review.content} index={index} />
             ))}
           </div>
         </div>

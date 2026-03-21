@@ -33,6 +33,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { formatDate } from "@/lib/utils";
 
 /* ── 월별 견적 문의 추이 더미 데이터 ── */
 const MONTHLY_DATA = [
@@ -180,7 +181,7 @@ export default function AdminDashboard() {
             <tbody>
               {quotes.slice(0, 5).map((q) => (
                 <tr key={q.id} className="border-b border-slate-50">
-                  <td className="py-3 text-sm text-slate-600">{q.createdAt}</td>
+                  <td className="py-3 text-sm text-slate-600">{formatDate(q.createdAt)}</td>
                   <td className="py-3 text-sm text-slate-900 font-medium">{q.customerName}</td>
                   <td className="py-3 text-sm text-slate-600">{q.serviceType}</td>
                   <td className="py-3"><StatusBadge status={q.status} /></td>

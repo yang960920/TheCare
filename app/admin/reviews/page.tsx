@@ -15,6 +15,7 @@ import ToggleSwitch from "@/components/admin/ToggleSwitch";
 import ConfirmModal from "@/components/admin/ConfirmModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Trash2, MessageCircle, Star, X } from "lucide-react";
+import { formatDate } from "@/lib/utils";
 
 /* ── 필터 옵션 ── */
 const SERVICE_FILTERS = ["전체", "줄눈 시공", "입주 청소", "탄성 코트", "나노 코팅", "새집증후군"];
@@ -81,7 +82,7 @@ export default function AdminReviewsPage() {
       </div>
     ), className: "w-24" },
     { key: "content", label: "내용", render: (r) => <span className="text-slate-600 line-clamp-1">{r.content}</span> },
-    { key: "date", label: "등록일", render: (r) => <span className="text-slate-400 text-xs">{r.createdAt}</span>, className: "w-24" },
+    { key: "date", label: "등록일", render: (r) => <span className="text-slate-400 text-xs">{formatDate(r.createdAt)}</span>, className: "w-24" },
     { key: "reply", label: "답변", render: (r) => (
       <button onClick={() => openReply(r)} className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-colors ${r.adminReply ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100" : "bg-slate-50 text-slate-400 hover:bg-slate-100"}`}>
         <MessageCircle size={12} />

@@ -9,7 +9,7 @@
  */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import ReviewCard from "@/components/ui/ReviewCard";
@@ -21,12 +21,13 @@ const FILTER_TABS = ["전체", "줄눈 시공", "입주 청소", "탄성 코트"
 
 /* ── 후기 데이터 타입 (관리자 답변 포함) ── */
 interface ReviewData {
+  id?: string;
   name: string;
   rating: number;
   serviceType: string;
   content: string;
-  adminReply?: string;        // 관리자 답변 내용
-  adminReplyDate?: string;    // 관리자 답변 작성일
+  adminReply?: string;
+  adminReplyDate?: string;
 }
 
 /* ── 리뷰 더미 데이터 (관리자 답변 포함) ── */
@@ -109,6 +110,29 @@ export default function ReviewsPage() {
   const router = useRouter();
   const { isLoggedIn, user, addReview, userReviews } = useAuthStore();
 
+  /* ── DB에서 로드한 후기 데이터 ── */
+  const [dbReviews, setDbReviews] = useState<ReviewData[]>([]);
+
+  useEffect(() => {
+    fetch("/api/reviews")
+      .then((r) => r.json())
+      .then((data) => {
+        const mapped: ReviewData[] = data
+          .filter((r: { visible: boolean }) => r.visible)
+          .map((r: { id: string; customerName: string; rating: number; serviceType: string; content: string; adminReply: string; adminReplyDate: string }) => ({
+            id: r.id,
+            name: r.customerName,
+            rating: r.rating,
+            serviceType: r.serviceType,
+            content: r.content,
+            adminReply: r.adminReply,
+            adminReplyDate: r.adminReplyDate,
+          }));
+        setDbReviews(mapped);
+      })
+      .catch(() => {});
+  }, []);
+
   /* ── 현재 선택된 필터 탭 상태 ── */
   const [activeFilter, setActiveFilter] = useState("전체");
   /* ── 선택된 후기 (상세 모달용) ── */
@@ -132,8 +156,8 @@ export default function ReviewsPage() {
     adminReplyDate: "",
   }));
 
-  /* ── 전체 리뷰 = 기존 더미 + 사용자 작성 ── */
-  const combinedReviews = [...userReviewsConverted, ...ALL_REVIEWS];
+  /* ── 전체 리뷰 = 사용자 작성 + DB 데이터 ── */
+  const combinedReviews = [...userReviewsConverted, ...dbReviews];
 
   /* ── 선택된 탭에 따라 리뷰 필터링 ── */
   const filteredReviews =

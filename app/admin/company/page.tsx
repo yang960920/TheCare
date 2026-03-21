@@ -1,6 +1,6 @@
 /** app/admin/company/page.tsx — 회사 정보 관리 */
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAdminStore } from "@/store/adminStore";
 import PageHeader from "@/components/admin/PageHeader";
 import { Save, Building2 } from "lucide-react";
@@ -8,6 +8,11 @@ import { Save, Building2 } from "lucide-react";
 export default function AdminCompanyPage() {
   const { company, updateCompany, addToast } = useAdminStore();
   const [form, setForm] = useState({ ...company });
+
+  // loadAll() 완료 후 폼 상태 동기화
+  useEffect(() => {
+    if (company.name) setForm({ ...company });
+  }, [company]);
 
   const handleSave = () => {
     updateCompany(form);
