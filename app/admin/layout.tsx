@@ -75,15 +75,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [loadAll]);
 
   /* 로그인 처리 */
-  const handleAdminLogin = (e: React.FormEvent) => {
+  const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginId === "admin" && loginPw === "thecare1234") {
-      setIsAdminLoggedIn(true);
-      sessionStorage.setItem("adminLoggedIn", "true");
-      setLoginError("");
-      loadAll();
-    } else {
-      setLoginError("아이디 또는 비밀번호가 올바르지 않습니다.");
+    try {
+      const res = await fetch("/api/auth/admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: loginId, pw: loginPw }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsAdminLoggedIn(true);
+        sessionStorage.setItem("adminLoggedIn", "true");
+        setLoginError("");
+        loadAll();
+      } else {
+        setLoginError(data.error || "로그인 실패");
+      }
+    } catch {
+      setLoginError("서버 오류가 발생했습니다.");
     }
   };
 
