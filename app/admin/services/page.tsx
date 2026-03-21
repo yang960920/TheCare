@@ -18,11 +18,15 @@ export default function AdminServicesPage() {
     setForm({ name: svc.name, description: svc.description, imageUrl: svc.imageUrl, visible: svc.visible });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (editing) {
-      updateService(editing.id, form);
-      addToast("서비스 정보가 저장되었습니다.");
-      setEditing(null);
+      try {
+        await updateService(editing.id, form);
+        addToast("서비스 정보가 저장되었습니다.");
+        setEditing(null);
+      } catch {
+        addToast("저장 실패. 다시 시도해주세요.", "error");
+      }
     }
   };
 

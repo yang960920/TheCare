@@ -30,18 +30,26 @@ export default function AdminQuotesPage() {
   };
 
   /** 연락 이력 저장 */
-  const handleSaveContact = () => {
+  const handleSaveContact = async () => {
     if (selected) {
-      updateQuoteContact(selected.id, contactDate, contactMemo);
-      addToast("연락 이력이 저장되었습니다.");
-      setSelected(null);
+      try {
+        await updateQuoteContact(selected.id, contactDate, contactMemo);
+        addToast("연락 이력이 저장되었습니다.");
+        setSelected(null);
+      } catch {
+        addToast("저장 실패. 다시 시도해주세요.", "error");
+      }
     }
   };
 
   /** 상태 변경 (테이블 내 드롭다운) */
-  const handleStatusChange = (id: string, status: QuoteInquiry["status"]) => {
-    updateQuoteStatus(id, status);
-    addToast(`상태가 '${status}'(으)로 변경되었습니다.`);
+  const handleStatusChange = async (id: string, status: QuoteInquiry["status"]) => {
+    try {
+      await updateQuoteStatus(id, status);
+      addToast(`상태가 '${status}'(으)로 변경되었습니다.`);
+    } catch {
+      addToast("상태 변경 실패", "error");
+    }
   };
 
   const columns: Column<QuoteInquiry>[] = [

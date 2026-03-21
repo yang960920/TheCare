@@ -28,9 +28,13 @@ export default function AdminHeroPage() {
   };
 
   /** 저장 버튼 클릭 */
-  const handleSave = () => {
-    updateHero(form);
-    addToast("히어로 섹션이 저장되었습니다.");
+  const handleSave = async () => {
+    try {
+      await updateHero(form);
+      addToast("히어로 섹션이 저장되었습니다.");
+    } catch {
+      addToast("저장 실패. 다시 시도해주세요.", "error");
+    }
   };
 
   return (

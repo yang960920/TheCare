@@ -50,26 +50,34 @@ export default function AdminReviewsPage() {
   };
 
   /* ── 답변 저장 ── */
-  const handleSaveReply = () => {
+  const handleSaveReply = async () => {
     if (replyTarget) {
-      setAdminReply(replyTarget.id, replyText);
-      addToast("답변이 저장되었습니다.");
-      setReplyTarget(null);
+      try {
+        await setAdminReply(replyTarget.id, replyText);
+        addToast("답변이 저장되었습니다.");
+        setReplyTarget(null);
+      } catch {
+        addToast("답변 저장 실패", "error");
+      }
     }
   };
 
   /* ── 신규 후기 등록 ── */
-  const handleAddReview = () => {
-    addReview({
-      ...newReview,
-      createdAt: new Date().toISOString().split("T")[0],
-      visible: true,
-      adminReply: "",
-      adminReplyDate: "",
-    });
-    addToast("후기가 등록되었습니다.");
-    setShowAddModal(false);
-    setNewReview({ customerName: "", serviceType: "입주 청소", rating: 5, content: "", imageUrl: "" });
+  const handleAddReview = async () => {
+    try {
+      await addReview({
+        ...newReview,
+        createdAt: new Date().toISOString().split("T")[0],
+        visible: true,
+        adminReply: "",
+        adminReplyDate: "",
+      });
+      addToast("후기가 등록되었습니다.");
+      setShowAddModal(false);
+      setNewReview({ customerName: "", serviceType: "입주 청소", rating: 5, content: "", imageUrl: "" });
+    } catch {
+      addToast("등록 실패", "error");
+    }
   };
 
   /* ── 테이블 컬럼 정의 ── */

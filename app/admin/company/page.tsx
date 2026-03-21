@@ -14,9 +14,13 @@ export default function AdminCompanyPage() {
     if (company.name) setForm({ ...company });
   }, [company]);
 
-  const handleSave = () => {
-    updateCompany(form);
-    addToast("회사 정보가 저장되었습니다.");
+  const handleSave = async () => {
+    try {
+      await updateCompany(form);
+      addToast("회사 정보가 저장되었습니다.");
+    } catch {
+      addToast("저장 실패. 다시 시도해주세요.", "error");
+    }
   };
 
   /** 통계 수치 변경 핸들러 */
