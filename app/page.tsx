@@ -116,18 +116,18 @@ export default function HomePage() {
         {/* 어두운 오버레이 (텍스트 가독성 확보) */}
         <div className="absolute inset-0 bg-gradient-to-r from-navy/90 via-navy/70 to-navy/50 pointer-events-none" />
 
-        {/* 히어로 콘텐츠 */}
+        {/* 히어로 콘텐츠 — API 데이터 로드 후에만 표시 */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={hero ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
             transition={{ duration: 0.8 }}
             className="max-w-2xl"
           >
             {/* 상단 라벨 */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
+              animate={hero ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
               transition={{ duration: 0.6, delay: 0.2 }}
               className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-6"
             >
@@ -137,7 +137,7 @@ export default function HomePage() {
 
             {/* 메인 헤드라인 */}
             <h1 className="font-display font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-tight mb-6">
-              {(hero?.headline || "깨끗한 공간, 건강한 생활의 시작").split(",").map((part, i) => (
+              {(hero?.headline || "").split(",").map((part, i) => (
                 <span key={i}>
                   {i > 0 && <br />}
                   {part.trim()}
@@ -147,7 +147,7 @@ export default function HomePage() {
 
             {/* 서브카피 */}
             <p className="text-white/70 text-lg md:text-xl leading-relaxed mb-8 max-w-lg">
-              {(hero?.subCopy || "줄눈 시공부터 입주 청소, 나노 코팅까지.\n더케어가 완벽한 클리닝을 약속합니다.").split("\n").map((line, i) => (
+              {(hero?.subCopy || "").split("\n").map((line, i) => (
                 <span key={i}>{i > 0 && <br />}{line}</span>
               ))}
             </p>
