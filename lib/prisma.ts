@@ -1,17 +1,21 @@
-/** lib/prisma.ts — Prisma Client 싱글턴
+/** lib/prisma.ts — Prisma Client 싱글턴 (Prisma 7 + pg adapter)
  *
- *  Next.js 개발 서버의 hot reload 시
- *  매번 새로운 Prisma Client 인스턴스가 생기는 것을 방지합니다.
- *
- *  NOTE: DATABASE_URL은 prisma.config.ts에서 자동 로드됩니다.
+ *  Prisma 7에서는 driver adapter가 필수입니다.
+ *  @prisma/adapter-pg + pg 패키지를 사용합니다.
  */
 import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+function createPrismaClient() {
+  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+  return new PrismaClient({ adapter });
+}
+
+export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
