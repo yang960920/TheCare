@@ -9,17 +9,36 @@
  */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import AcademyCard from "@/components/ui/AcademyCard";
 import { useAdminStore } from "@/store/adminStore";
 
-/* ── 수강 과정 더미 데이터 3개 ── */
-const COURSES = [
+/* ── 코스 타입 ── */
+interface CourseData {
+  id: string;
+  title: string;
+  duration: string;
+  description: string;
+  price: string;
+  capacity: number;
+  imageUrl: string;
+  visible: boolean;
+  features?: string[];
+  featured?: boolean;
+}
+
+/* ── 더미 코스 (로딩 전 폴백) ── */
+const FALLBACK_COURSES: CourseData[] = [
   {
+    id: "fallback-1",
     title: "기초 과정",
     duration: "4주 (주 2회)",
+    price: "",
+    capacity: 15,
+    imageUrl: "",
+    visible: true,
     description:
       "청소 업계 입문자를 위한 기초 과정입니다. 청소 장비 사용법부터 기본 시공 기술까지 체계적으로 배웁니다.",
     features: [
@@ -32,8 +51,13 @@ const COURSES = [
     featured: false,
   },
   {
+    id: "fallback-2",
     title: "전문가 과정",
     duration: "8주 (주 3회)",
+    price: "",
+    capacity: 15,
+    imageUrl: "",
+    visible: true,
     description:
       "현장 경험을 기반으로 전문 시공 기술을 심화 학습하는 과정입니다. 수료 후 바로 현장 투입이 가능합니다.",
     features: [
@@ -46,8 +70,13 @@ const COURSES = [
     featured: true,
   },
   {
+    id: "fallback-3",
     title: "마스터 과정",
     duration: "12주 (주 3회)",
+    price: "",
+    capacity: 15,
+    imageUrl: "",
+    visible: true,
     description:
       "독립 사업자 또는 관리자를 목표로 하는 최상위 과정입니다. 경영 노하우와 고급 시공 기술을 동시에 습득합니다.",
     features: [
@@ -62,9 +91,19 @@ const COURSES = [
 ];
 
 export default function AcademyPage() {
+  /* ── DB에서 코스 가져오기 ── */
+  const [courses, setCourses] = useState<CourseData[]>([]);
+  useEffect(() => {
+    fetch("/api/academy/courses")
+      .then(r => r.json())
+      .then((data: CourseData[]) => setCourses(data.filter(c => c.visible)))
+      .catch(() => {});
+  }, []);
+  const displayCourses = courses.length > 0 ? courses : FALLBACK_COURSES;
+
   /* ── 팝업 상태 ── */
   const [showModal, setShowModal] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState<typeof COURSES[0] | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<CourseData | null>(null);
 
   /* ── 상담 폼 상태 ── */
   const [name, setName] = useState("");
@@ -75,7 +114,7 @@ export default function AcademyPage() {
   const { addAcademyInquiry, addToast } = useAdminStore();
 
   /** 수강 신청 팝업 열기 */
-  const openApplyModal = (course?: typeof COURSES[0]) => {
+  const openApplyModal = (course?: CourseData) => {
     setSelectedCourse(course || null);
     setShowModal(true);
     setSubmitted(false);
@@ -233,10 +272,13 @@ export default function AcademyPage() {
 
           {/* 과정 카드 그리드 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {COURSES.map((course, index) => (
+            {displayCourses.map((course, index) => (
               <AcademyCard
-                key={course.title}
-                {...course}
+                key={course.id || course.title}
+                title={course.title}
+                duration={course.duration}
+                description={course.description}
+                featured={index === 1}
                 index={index}
                 onApply={() => openApplyModal(course)}
               />

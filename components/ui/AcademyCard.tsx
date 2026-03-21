@@ -15,7 +15,7 @@ interface AcademyCardProps {
   duration: string;     // 교육 기간
 
   description: string;  // 과정 설명
-  features: string[];   // 주요 커리큘럼 항목들
+  features?: string[];   // 주요 커리큘럼 항목들 (optional)
   index?: number;       // 애니메이션 딜레이
   featured?: boolean;   // 추천 과정 여부 (강조 표시)
   onApply?: () => void; // 수강 신청 클릭 콜백
@@ -84,6 +84,7 @@ export default function AcademyCard({
       </div>
 
       {/* ── 커리큘럼 항목 리스트 ── */}
+      {features && features.length > 0 && (
       <ul className="space-y-2 mb-6">
         {features.map((feature, i) => (
           <li key={i} className="flex items-start gap-2">
@@ -106,6 +107,7 @@ export default function AcademyCard({
           </li>
         ))}
       </ul>
+      )}
 
       {/* ── 수강 신청 버튼 ── */}
       <button

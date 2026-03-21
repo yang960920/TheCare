@@ -74,7 +74,8 @@ const SERVICES = [
   },
 ];
 
-/* ── 리뷰 & 통계 타입 ── */
+/* ── 타입 정의 ── */
+interface HeroData { headline: string; subCopy: string; cta1Text: string; cta1Link: string; cta2Text: string; cta2Link: string; bgImageUrl: string; }
 interface Review { id: string; customerName: string; rating: number; serviceType: string; content: string; visible: boolean; }
 interface Stat { label: string; value: string; }
 
@@ -82,10 +83,14 @@ interface Stat { label: string; value: string; }
  *  메인 홈 페이지 컴포넌트
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 export default function HomePage() {
+  const [hero, setHero] = useState<HeroData | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState<Stat[]>([]);
 
   useEffect(() => {
+    fetch("/api/hero").then(r => r.json()).then((data: HeroData) => {
+      setHero(data);
+    }).catch(() => {});
     fetch("/api/reviews").then(r => r.json()).then((data: Review[]) => {
       setReviews(data.filter(r => r.visible).slice(0, 3));
     }).catch(() => {});
@@ -102,7 +107,7 @@ export default function HomePage() {
       <section className="relative z-0 min-h-screen flex items-center overflow-hidden">
         {/* 배경 이미지 */}
         <Image
-          src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1920&q=80"
+          src={hero?.bgImageUrl || "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1920&q=80"}
           alt="청소 전문 서비스 히어로 이미지"
           fill
           className="object-cover pointer-events-none"
@@ -132,38 +137,39 @@ export default function HomePage() {
 
             {/* 메인 헤드라인 */}
             <h1 className="font-display font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-tight mb-6">
-              깨끗한 공간,
-              <br />
-              <span className="gradient-text">건강한 생활</span>의
-              <br />
-              시작
+              {(hero?.headline || "깨끗한 공간, 건강한 생활의 시작").split(",").map((part, i) => (
+                <span key={i}>
+                  {i > 0 && <br />}
+                  {part.trim()}
+                </span>
+              ))}
             </h1>
 
             {/* 서브카피 */}
             <p className="text-white/70 text-lg md:text-xl leading-relaxed mb-8 max-w-lg">
-              줄눈 시공부터 입주 청소, 나노 코팅까지.
-              <br />
-              더케어가 완벽한 클리닝을 약속합니다.
+              {(hero?.subCopy || "줄눈 시공부터 입주 청소, 나노 코팅까지.\n더케어가 완벽한 클리닝을 약속합니다.").split("\n").map((line, i) => (
+                <span key={i}>{i > 0 && <br />}{line}</span>
+              ))}
             </p>
 
             {/* CTA 버튼 2개 */}
             <div className="flex flex-col sm:flex-row gap-4">
               {/* 견적문의 (주요 CTA) */}
               <Link
-                href="/quote"
+                href={hero?.cta1Link || "/quote"}
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-cyan to-cyan-dark text-white font-bold rounded-xl hover:shadow-xl hover:shadow-cyan/30 transition-all duration-300 text-base"
               >
-                무료 견적 받기
+                {hero?.cta1Text || "무료 견적 받기"}
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </Link>
-              {/* 서비스 둘러보기 (보조 CTA) */}
+              {/* 보조 CTA */}
               <Link
-                href="/about"
+                href={hero?.cta2Link || "/about"}
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-xl hover:bg-white/20 transition-all duration-300 text-base"
               >
-                서비스 둘러보기
+                {hero?.cta2Text || "서비스 둘러보기"}
               </Link>
             </div>
           </motion.div>
