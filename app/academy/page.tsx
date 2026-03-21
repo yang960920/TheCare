@@ -153,7 +153,7 @@ export default function AcademyPage() {
               <div className="rounded-2xl overflow-hidden">
                 <Image
                   src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80"
-                  alt="클린마스터 아카데미 교육 현장"
+                  alt="더케어 아카데미 교육 현장"
                   width={800}
                   height={500}
                   className="w-full h-72 md:h-96 object-cover"
@@ -178,7 +178,7 @@ export default function AcademyPage() {
               </h2>
               <div className="space-y-4 text-navy/60 text-base leading-relaxed">
                 <p>
-                  클린마스터 아카데미는 12년간 축적된 현장 노하우를 바탕으로
+                  더케어 아카데미는 실전 현장 노하우를 바탕으로
                   설계된 전문 교육 프로그램입니다. 이론 교육과 실습을 병행하여
                   수료 직후 바로 현장에 투입 가능한 인재를 양성합니다.
                 </p>
@@ -270,13 +270,13 @@ export default function AcademyPage() {
                 수강 상담 신청
               </button>
               <a
-                href="tel:02-1234-5678"
+                href="tel:031-0000-0000"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white font-semibold rounded-xl hover:bg-white/20 transition-all duration-300"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
-                02-1234-5678
+                031-0000-0000
               </a>
             </div>
           </motion.div>

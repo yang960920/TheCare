@@ -68,7 +68,7 @@ export default function AdminCompanyPage() {
               </div>
             ))}
           </div>
-          <p className="text-xs text-slate-400 mt-4">※ 홈페이지 &apos;숫자로 보는 클린마스터&apos; 섹션에 표시됩니다.</p>
+          <p className="text-xs text-slate-400 mt-4">※ 홈페이지 &apos;숫자로 보는 더케어&apos; 섹션에 표시됩니다.</p>
         </div>
       </div>
     </>

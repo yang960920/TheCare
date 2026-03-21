@@ -272,7 +272,7 @@ export default function PointsPage() {
                 신규 가입 시 5,000P 즉시 적립!
               </h3>
               <p className="text-navy/60 text-sm md:text-base">
-                지금 클린마스터 회원으로 가입하시면 5,000 포인트를 즉시 드립니다.
+                지금 더케어 회원으로 가입하시면 5,000 포인트를 즉시 드립니다.
                 첫 서비스 이용 시 바로 사용 가능합니다.
               </p>
             </div>

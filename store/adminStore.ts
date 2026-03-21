@@ -211,7 +211,7 @@ interface AdminState {
 
 const INITIAL_HERO: HeroData = {
   headline: "깨끗한 공간, 건강한 생활의 시작",
-  subCopy: "줄눈 시공부터 입주 청소, 나노 코팅까지.\n클린마스터가 완벽한 클리닝을 약속합니다.",
+  subCopy: "줄눈 시공부터 입주 청소, 나노 코팅까지.\n더케어가 완벽한 클리닝을 약속합니다.",
   cta1Text: "무료 견적 받기",
   cta1Link: "/quote",
   cta2Text: "서비스 둘러보기",
@@ -256,16 +256,16 @@ const INITIAL_QUOTES: QuoteInquiry[] = [
 ];
 
 const INITIAL_COMPANY: CompanyInfo = {
-  name: "클린마스터",
-  ceo: "홍길동",
-  businessNumber: "123-45-67890",
-  address: "서울시 강남구 테헤란로 123 클린마스터 빌딩 5층",
-  phone: "02-1234-5678",
-  email: "info@cleanmaster.co.kr",
+  name: "더케어",
+  ceo: "문성민",
+  businessNumber: "282-55-00733",
+  address: "경기도 양주시 화합로1710번길 76, 4층 공장435호(옥정동, 슈프림더브릭스타워)",
+  phone: "031-0000-0000",
+  email: "iumwebstudio@gmail.com",
   stats: [
     { label: "누적 시공 건수", value: "15,000+" },
     { label: "고객 만족도", value: "98%" },
-    { label: "업계 경력", value: "12년" },
+    { label: "업계 경력", value: "3년+" },
   ],
 };
 

@@ -91,7 +91,7 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <PageHeader title="대시보드" description="클린마스터 관리자 현황을 한눈에 확인하세요" />
+      <PageHeader title="대시보드" description="더케어 관리자 현황을 한눈에 확인하세요" />
 
       {/* ═══════════════════════════════════════
        *  요약 카드 4개

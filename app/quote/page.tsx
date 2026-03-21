@@ -1,85 +1,154 @@
-/** app/quote/page.tsx — 견적 확인 페이지
+/** app/quote/page.tsx — 가견적 확인 페이지
  *
  *  플로우:
- *  1. 평수 입력 + 건물 상태 선택 (신축/구축)
- *  2. "견적 확인하기" → 팝업: 예상 견적 범위 표시
- *  3. 팝업 내 이름/연락처 입력 → "상담 신청하기" → 관리자 페이지 전달
+ *  1. 평형대 선택 (20평대 / 30평대 / 40평대)
+ *  2. 서비스 체크박스 복수 선택 → 실시간 합산 표시
+ *  3. "가견적 확인하기" → 팝업: 선택 서비스 요약 + 합산 금액
+ *  4. 팝업 내 이름/연락처 입력 → "세부 상담 신청하기" → 관리자 페이지 전달
  */
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAdminStore } from "@/store/adminStore";
 
-/* ── 단가 설정 (더미) ── */
-const PRICE_PER_PYEONG = {
-  new: 11000,   // 신축: 평당 11,000원
-  old: 16500,   // 구축: 평당 16,500원
-};
-const PRICE_RANGE_MULTIPLIER = 1.25; // 최대 견적 = 최소 × 1.25
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ *  가격 데이터 (단위: 만원)
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-/* ── 건물 상태 옵션 ── */
-const BUILDING_OPTIONS = [
+interface ServiceInfo {
+  key: string;
+  label: string;
+  description: string;
+  icon: React.ReactNode;
+  prices: Record<string, number>; // "20" | "30" | "40" → 만원
+}
+
+const SERVICES: ServiceInfo[] = [
   {
-    value: "new" as const,
-    label: "신축",
-    sub: "5년 이내, 비교적 깨끗함",
+    key: "elastic",
+    label: "탄성 코트",
+    description: "바닥재 보호 및 미끄럼 방지 탄성 코트 시공",
     icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+      </svg>
+    ),
+    prices: { "20": 35, "30": 40, "40": 45 },
+  },
+  {
+    key: "grout",
+    label: "줄눈 시공",
+    description: "욕실·주방 타일 줄눈 전문 시공",
+    icon: (
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+      </svg>
+    ),
+    prices: { "20": 30, "30": 35, "40": 40 },
+  },
+  {
+    key: "cleaning",
+    label: "입주 청소",
+    description: "신축·이사 전후 전문 입주 청소 서비스",
+    icon: (
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-6 h-6">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
       </svg>
     ),
+    prices: { "20": 35, "30": 45, "40": 55 },
   },
   {
-    value: "old" as const,
-    label: "구축",
-    sub: "5년 이상, 찌든 때 제거",
+    key: "nanoCoat",
+    label: "나노 코팅",
+    description: "오염 방지 및 항균 나노 코팅 시공",
     icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
       </svg>
     ),
+    prices: { "20": 50, "30": 55, "40": 60 },
+  },
+  {
+    key: "sickHouse",
+    label: "새집증후군 제거",
+    description: "유해물질 측정 및 제거 시공",
+    icon: (
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      </svg>
+    ),
+    prices: { "20": 30, "30": 35, "40": 40 },
   },
 ];
 
+/* ── 평형대 옵션 ── */
+const AREA_OPTIONS = [
+  { value: "20", label: "20평대", sub: "59㎡ ~ 66㎡" },
+  { value: "30", label: "30평대", sub: "85㎡ ~ 99㎡" },
+  { value: "40", label: "40평대", sub: "115㎡ ~ 132㎡" },
+];
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ *  메인 컴포넌트
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 export default function QuotePage() {
   /* ── 폼 상태 ── */
-  const [area, setArea] = useState("");
-  const [buildingType, setBuildingType] = useState<"new" | "old" | null>(null);
+  const [areaSize, setAreaSize] = useState<string | null>(null);
+  const [selectedServices, setSelectedServices] = useState<Set<string>>(new Set());
 
   /* ── 팝업 상태 ── */
   const [showModal, setShowModal] = useState(false);
-  const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(0);
+  const [submitted, setSubmitted] = useState(false);
 
   /* ── 상담 폼 상태 ── */
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [submitted, setSubmitted] = useState(false);
 
   const { addQuote, addToast } = useAdminStore();
 
-  /** 견적 계산 + 팝업 열기 */
-  const handleEstimate = () => {
-    const areaNum = parseFloat(area);
-    if (!areaNum || areaNum <= 0) {
-      addToast("평수를 올바르게 입력해주세요.", "error");
-      return;
-    }
-    if (!buildingType) {
-      addToast("건물 상태를 선택해주세요.", "error");
-      return;
-    }
-
-    const unitPrice = PRICE_PER_PYEONG[buildingType];
-    const min = Math.round(areaNum * unitPrice);
-    const max = Math.round(min * PRICE_RANGE_MULTIPLIER);
-    setMinPrice(min);
-    setMaxPrice(max);
-    setShowModal(true);
+  /* ── 체크박스 토글 ── */
+  const toggleService = (key: string) => {
+    setSelectedServices((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
   };
 
-  /** 상담 신청 */
+  /* ── 실시간 합산 계산 ── */
+  const { totalPrice, breakdown } = useMemo(() => {
+    if (!areaSize) return { totalPrice: 0, breakdown: [] as { label: string; price: number }[] };
+    const items: { label: string; price: number }[] = [];
+    let total = 0;
+    for (const svc of SERVICES) {
+      if (selectedServices.has(svc.key)) {
+        const price = svc.prices[areaSize] ?? 0;
+        items.push({ label: svc.label, price });
+        total += price;
+      }
+    }
+    return { totalPrice: total, breakdown: items };
+  }, [areaSize, selectedServices]);
+
+  /* ── 가견적 확인하기 ── */
+  const handleEstimate = () => {
+    if (!areaSize) {
+      addToast("평형대를 선택해주세요.", "error");
+      return;
+    }
+    if (selectedServices.size === 0) {
+      addToast("최소 1개 이상의 서비스를 선택해주세요.", "error");
+      return;
+    }
+    setShowModal(true);
+    setSubmitted(false);
+    setName("");
+    setPhone("");
+  };
+
+  /* ── 상담 신청 ── */
   const handleSubmit = () => {
     if (!name.trim()) {
       addToast("이름을 입력해주세요.", "error");
@@ -90,12 +159,15 @@ export default function QuotePage() {
       return;
     }
 
+    const serviceNames = breakdown.map((b) => b.label).join(", ");
+    const areaLabel = AREA_OPTIONS.find((a) => a.value === areaSize)?.label ?? "";
+
     addQuote({
       customerName: name,
       phone,
-      serviceType: "입주 청소",
-      area: `${area}평`,
-      memo: `건물상태: ${buildingType === "new" ? "신축" : "구축"} | 예상견적: ${minPrice.toLocaleString()}원 ~ ${maxPrice.toLocaleString()}원`,
+      serviceType: serviceNames,
+      area: areaLabel,
+      memo: `[가견적] ${breakdown.map((b) => `${b.label}: ${b.price}만원`).join(" / ")} | 합계: ${totalPrice}만원`,
       status: "미확인",
       createdAt: new Date().toISOString().split("T")[0],
       contactDate: "",
@@ -106,20 +178,17 @@ export default function QuotePage() {
     addToast("상담 신청이 완료되었습니다!");
   };
 
-  /** 모달 닫기 & 리셋 */
+  /* ── 모달 닫기 & 리셋 ── */
   const closeModal = () => {
     setShowModal(false);
     if (submitted) {
-      setArea("");
-      setBuildingType(null);
+      setAreaSize(null);
+      setSelectedServices(new Set());
       setName("");
       setPhone("");
       setSubmitted(false);
     }
   };
-
-  /** 금액 포맷 */
-  const formatPrice = (n: number) => n.toLocaleString();
 
   return (
     <>
@@ -138,22 +207,22 @@ export default function QuotePage() {
               Estimate
             </span>
             <h1 className="font-display font-bold text-3xl md:text-5xl lg:text-6xl text-white mt-3 mb-4">
-              견적 확인
+              가견적 확인
             </h1>
             <p className="text-white/60 text-base md:text-lg max-w-xl">
-              간단한 정보만 입력하시면 예상 견적을 바로 확인하실 수 있습니다
+              원하시는 서비스를 선택하시면 예상 견적을 바로 확인할 수 있습니다
             </p>
           </motion.div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════
-       *  견적 확인 폼
+       *  가견적 폼
        * ═══════════════════════════════════════════════ */}
       <section className="section-padding bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-            {/* ── 좌측: 견적 폼 (2/3) ── */}
+            {/* ── 좌측: 가견적 폼 (2/3) ── */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -163,88 +232,148 @@ export default function QuotePage() {
             >
               <div className="bg-white rounded-2xl p-6 md:p-10 border border-slate-light/50">
                 <h2 className="font-display font-bold text-xl md:text-2xl text-navy mb-8">
-                  예상 견적 확인하기
+                  가견적 확인하기
                 </h2>
 
                 <div className="space-y-8">
-                  {/* Step 1: 평수 입력 */}
+                  {/* ── Step 1: 평형대 선택 ── */}
                   <div>
                     <label className="flex items-center gap-2 text-sm font-semibold text-navy mb-3">
                       <span className="w-6 h-6 rounded-full bg-cyan/10 text-cyan text-xs font-bold flex items-center justify-center">1</span>
-                      청소 공간 평수를 입력해주세요
+                      평형대를 선택해주세요
                     </label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={area}
-                        onChange={(e) => setArea(e.target.value)}
-                        placeholder="예: 32"
-                        min="1"
-                        className="w-full px-4 py-4 rounded-xl border border-slate-light focus:border-cyan focus:ring-2 focus:ring-cyan/20 outline-none transition-all text-base text-navy placeholder:text-slate pr-12"
-                      />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-navy/40 font-medium">평</span>
-                    </div>
-                  </div>
-
-                  {/* Step 2: 건물 상태 선택 */}
-                  <div>
-                    <label className="flex items-center gap-2 text-sm font-semibold text-navy mb-3">
-                      <span className="w-6 h-6 rounded-full bg-cyan/10 text-cyan text-xs font-bold flex items-center justify-center">2</span>
-                      건물의 상태를 선택해주세요
-                    </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {BUILDING_OPTIONS.map((opt) => (
+                    <div className="grid grid-cols-3 gap-3">
+                      {AREA_OPTIONS.map((opt) => (
                         <button
                           key={opt.value}
                           type="button"
-                          onClick={() => setBuildingType(opt.value)}
-                          className={`relative flex items-start gap-4 p-5 rounded-xl border-2 text-left transition-all duration-300 ${
-                            buildingType === opt.value
+                          onClick={() => setAreaSize(opt.value)}
+                          className={`relative p-4 rounded-xl border-2 text-center transition-all duration-300 ${
+                            areaSize === opt.value
                               ? "border-cyan bg-cyan/5 shadow-md shadow-cyan/10"
                               : "border-slate-light hover:border-cyan/40 bg-white"
                           }`}
                         >
-                          {/* 선택 인디케이터 */}
-                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
-                            buildingType === opt.value
-                              ? "border-cyan bg-cyan"
-                              : "border-slate-light"
-                          }`}>
-                            {buildingType === opt.value && (
+                          <div className={`font-bold text-lg ${areaSize === opt.value ? "text-navy" : "text-navy/70"}`}>
+                            {opt.label}
+                          </div>
+                          <div className="text-xs text-navy/40 mt-0.5">{opt.sub}</div>
+                          {/* 선택 체크 */}
+                          {areaSize === opt.value && (
+                            <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-cyan flex items-center justify-center">
                               <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                               </svg>
-                            )}
-                          </div>
-
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className={`${buildingType === opt.value ? "text-cyan" : "text-navy/40"} transition-colors`}>
-                                {opt.icon}
-                              </span>
-                              <span className={`font-bold text-base ${buildingType === opt.value ? "text-navy" : "text-navy/80"}`}>
-                                {opt.label}
-                              </span>
                             </div>
-                            <span className="text-sm text-navy/50">{opt.sub}</span>
-                          </div>
+                          )}
                         </button>
                       ))}
                     </div>
                   </div>
 
-                  {/* 견적 확인 버튼 */}
+                  {/* ── Step 2: 서비스 체크박스 ── */}
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-semibold text-navy mb-3">
+                      <span className="w-6 h-6 rounded-full bg-cyan/10 text-cyan text-xs font-bold flex items-center justify-center">2</span>
+                      원하시는 서비스를 선택해주세요
+                      <span className="text-navy/40 text-xs font-normal">(복수 선택 가능)</span>
+                    </label>
+                    <div className="space-y-3">
+                      {SERVICES.map((svc) => {
+                        const isChecked = selectedServices.has(svc.key);
+                        const price = areaSize ? svc.prices[areaSize] : null;
+                        return (
+                          <button
+                            key={svc.key}
+                            type="button"
+                            onClick={() => toggleService(svc.key)}
+                            className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 text-left transition-all duration-300 ${
+                              isChecked
+                                ? "border-cyan bg-cyan/5 shadow-md shadow-cyan/10"
+                                : "border-slate-light hover:border-cyan/40 bg-white"
+                            }`}
+                          >
+                            {/* 체크박스 */}
+                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                              isChecked
+                                ? "border-cyan bg-cyan"
+                                : "border-slate-light"
+                            }`}>
+                              {isChecked && (
+                                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                </svg>
+                              )}
+                            </div>
+
+                            {/* 아이콘 */}
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                              isChecked ? "bg-cyan/10 text-cyan" : "bg-slate-50 text-navy/30"
+                            }`}>
+                              {svc.icon}
+                            </div>
+
+                            {/* 텍스트 */}
+                            <div className="flex-1 min-w-0">
+                              <div className={`font-bold text-base ${isChecked ? "text-navy" : "text-navy/70"}`}>
+                                {svc.label}
+                              </div>
+                              <div className="text-xs text-navy/40 truncate">{svc.description}</div>
+                            </div>
+
+                            {/* 가격 */}
+                            {price !== null && (
+                              <div className={`text-right flex-shrink-0 ${isChecked ? "text-cyan" : "text-navy/40"}`}>
+                                <span className="font-bold text-lg">{price}</span>
+                                <span className="text-xs ml-0.5">만원</span>
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* ── 합산 금액 표시 ── */}
+                  {areaSize && selectedServices.size > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-gradient-to-r from-navy to-navy-light rounded-xl p-5 flex items-center justify-between"
+                    >
+                      <div>
+                        <div className="text-white/60 text-sm">예상 가견적 합계</div>
+                        <div className="text-white/40 text-xs mt-0.5">
+                          {selectedServices.size}개 서비스 · {AREA_OPTIONS.find((a) => a.value === areaSize)?.label}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-display font-black text-3xl text-cyan">
+                          {totalPrice}
+                        </span>
+                        <span className="text-white/60 text-sm ml-1">만원</span>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* ── 가견적 확인 버튼 ── */}
                   <button
                     type="button"
                     onClick={handleEstimate}
                     className="w-full py-4 bg-gradient-to-r from-cyan to-cyan-dark text-white font-bold rounded-xl hover:shadow-lg hover:shadow-cyan/25 transition-all duration-300 text-base"
                   >
-                    견적 확인하기
+                    가견적 확인하기
                   </button>
 
-                  <p className="text-center text-navy/40 text-xs">
-                    실제 견적은 현장 상담을 통해 확정됩니다
-                  </p>
+                  {/* ── 안내 문구 ── */}
+                  <div className="space-y-1.5 text-center">
+                    <p className="text-navy/40 text-xs">
+                      ※ 실제 견적은 현장 상담을 통해 확정됩니다
+                    </p>
+                    <p className="text-navy/40 text-xs">
+                      ※ 프리미엄 옵션 추가금은 별도 문의 바랍니다
+                    </p>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -266,8 +395,8 @@ export default function QuotePage() {
                 </div>
                 <h3 className="font-display font-bold text-lg text-navy mb-2">전화 상담</h3>
                 <p className="text-navy/60 text-sm mb-3">평일 09:00 ~ 18:00</p>
-                <a href="tel:02-1234-5678" className="text-cyan font-bold text-lg hover:underline">
-                  02-1234-5678
+                <a href="tel:031-0000-0000" className="text-cyan font-bold text-lg hover:underline">
+                  031-0000-0000
                 </a>
               </div>
 
@@ -280,7 +409,7 @@ export default function QuotePage() {
                 </div>
                 <h3 className="font-display font-bold text-lg text-navy mb-2">카카오톡 상담</h3>
                 <p className="text-navy/60 text-sm mb-3">24시간 접수 가능</p>
-                <span className="text-cyan font-bold text-lg">@cleanmaster</span>
+                <span className="text-cyan font-bold text-lg">@thecare</span>
               </div>
 
               {/* 방문 상담 카드 */}
@@ -293,10 +422,26 @@ export default function QuotePage() {
                 </div>
                 <h3 className="font-display font-bold text-lg text-navy mb-2">방문 상담</h3>
                 <p className="text-navy/60 text-sm">
-                  서울시 강남구 테헤란로 123
+                  경기도 양주시 화합로1710번길 76
                   <br />
-                  클린마스터 빌딩 5층
+                  4층 공장435호 (옥정동, 슈프림더브릭스타워)
                 </p>
+              </div>
+
+              {/* 가격 표시 안내 */}
+              <div className="bg-cyan/5 border border-cyan/15 rounded-2xl p-5">
+                <div className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-cyan flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>
+                    <p className="text-sm font-semibold text-navy mb-1">가견적 안내</p>
+                    <p className="text-xs text-navy/60 leading-relaxed">
+                      본 페이지의 견적은 참고용 가견적이며, 실제 시공 금액은 현장 방문 상담 후 확정됩니다.
+                      프리미엄 옵션 및 특수 시공은 추가 비용이 발생할 수 있습니다.
+                    </p>
+                  </div>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -304,7 +449,7 @@ export default function QuotePage() {
       </section>
 
       {/* ═══════════════════════════════════════════════
-       *  견적 결과 + 상담 신청 팝업 모달
+       *  가견적 결과 + 상담 신청 팝업 모달
        * ═══════════════════════════════════════════════ */}
       <AnimatePresence>
         {showModal && (
@@ -332,7 +477,7 @@ export default function QuotePage() {
               >
                 {!submitted ? (
                   <>
-                    {/* ── 견적 결과 영역 ── */}
+                    {/* ── 가견적 결과 영역 ── */}
                     <div className="bg-gradient-to-br from-cyan/5 to-cyan/10 p-6 md:p-8 rounded-t-2xl border-b border-cyan/10">
                       {/* 닫기 버튼 */}
                       <div className="flex justify-end mb-2">
@@ -346,41 +491,57 @@ export default function QuotePage() {
                         </button>
                       </div>
 
-                      {/* 체크 아이콘 + 제목 */}
-                      <div className="flex items-center gap-2 mb-4">
+                      {/* 제목 */}
+                      <div className="flex items-center gap-2 mb-5">
                         <div className="w-6 h-6 rounded-full bg-cyan flex items-center justify-center">
                           <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                           </svg>
                         </div>
-                        <span className="font-bold text-navy text-base">조건별 예상 견적</span>
+                        <span className="font-bold text-navy text-base">
+                          가견적 결과 ({AREA_OPTIONS.find((a) => a.value === areaSize)?.label})
+                        </span>
                       </div>
 
-                      {/* 금액 표시 */}
-                      <div className="text-center mb-4">
-                        <span className="font-display font-black text-2xl md:text-3xl text-navy">
-                          {formatPrice(minPrice)}원
+                      {/* 서비스 리스트 */}
+                      <div className="space-y-2.5 mb-5">
+                        {breakdown.map((item) => (
+                          <div key={item.label} className="flex items-center justify-between bg-white/60 backdrop-blur-sm rounded-lg px-4 py-3">
+                            <div className="flex items-center gap-2">
+                              <svg className="w-4 h-4 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                              </svg>
+                              <span className="text-sm font-medium text-navy">{item.label}</span>
+                            </div>
+                            <span className="font-bold text-navy">{item.price}<span className="text-xs text-navy/50 ml-0.5">만원</span></span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* 합계 */}
+                      <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 text-center">
+                        <div className="text-navy/50 text-xs mb-1">예상 합계</div>
+                        <span className="font-display font-black text-3xl text-navy">
+                          {totalPrice}
                         </span>
-                        <span className="text-navy/40 font-bold text-xl mx-2">~</span>
-                        <span className="font-display font-black text-2xl md:text-3xl text-navy">
-                          {formatPrice(maxPrice)}원
-                        </span>
+                        <span className="text-navy/60 text-sm ml-1">만원</span>
                       </div>
 
                       {/* 안내 사항 */}
-                      <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 text-sm text-navy/60 leading-relaxed">
+                      <div className="mt-4 bg-white/60 backdrop-blur-sm rounded-xl p-4 text-sm text-navy/60 leading-relaxed">
                         <span className="text-amber-500 mr-1">⚠️</span>
-                        <span className="font-semibold text-navy/70">안내사항:</span> 위 금액은 입력하신 정보를 바탕으로 산출된 대략적인 가견적입니다. 베란다 확장 여부, 오염도, 추가 시공(줄눈 등)에 따라 최종 금액은 전화 상담 후 확정됩니다.
+                        <span className="font-semibold text-navy/70">안내:</span> 위 금액은 참고용 가견적이며, 실제 금액은 현장 방문 상담 후 확정됩니다.
+                        프리미엄 옵션 및 특수 시공 시 추가 비용이 발생할 수 있습니다.
                       </div>
                     </div>
 
                     {/* ── 상담 신청 폼 ── */}
                     <div className="p-6 md:p-8">
                       <h3 className="font-display font-bold text-lg text-navy text-center mb-2">
-                        정확한 맞춤 견적이 필요하신가요?
+                        세부 상담을 받아보세요
                       </h3>
                       <p className="text-navy/50 text-sm text-center mb-6">
-                        연락처를 남겨주시면 담당자가 친절하게 상담해 드립니다
+                        연락처를 남겨주시면 담당자가 상세 견적을 안내해 드립니다
                       </p>
 
                       <div className="space-y-4">
@@ -422,7 +583,7 @@ export default function QuotePage() {
                           onClick={handleSubmit}
                           className="w-full py-4 bg-navy text-white font-bold rounded-xl hover:bg-navy-light transition-all duration-300 text-base"
                         >
-                          상담 신청하기
+                          세부 상담 신청하기
                         </button>
                       </div>
                     </div>

@@ -15,9 +15,9 @@ import ServiceCard from "@/components/ui/ServiceCard";
 /* ── 핵심 수치 통계 (더미) ── */
 const STATS = [
   {
-    number: "12년+",
+    number: "3년+",
     label: "업계 경력",
-    description: "2013년 설립 이래 꾸준히 성장해 온 청소 전문 기업",
+    description: "2022년 설립 이래 꾸준히 성장해 온 청소 전문 기업",
   },
   {
     number: "15,000+",
@@ -109,7 +109,7 @@ export default function AboutPage() {
               회사소개
             </h1>
             <p className="text-white/60 text-base md:text-lg max-w-xl">
-              12년간 쌓아 온 신뢰와 기술력으로 최상의 청소 서비스를 제공합니다
+              3년간 쌓아 온 신뢰와 기술력으로 최상의 청소 서비스를 제공합니다
             </p>
           </motion.div>
         </div>
@@ -138,7 +138,7 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-4 text-navy/60 text-base leading-relaxed">
                 <p>
-                  클린마스터는 2013년 설립 이래 &ldquo;깨끗한 공간, 건강한 생활&rdquo;이라는
+                  더케어는 2022년 설립 이래 &ldquo;깨끗한 공간, 건강한 생활&rdquo;이라는
                   비전 아래 꾸준히 성장해 온 청소 전문 기업입니다.
                 </p>
                 <p>
@@ -165,7 +165,7 @@ export default function AboutPage() {
               <div className="relative rounded-2xl overflow-hidden">
                 <Image
                   src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80"
-                  alt="클린마스터 전문 청소 작업 현장"
+                  alt="더케어 전문 청소 작업 현장"
                   width={800}
                   height={600}
                   className="w-full h-80 md:h-96 object-cover"

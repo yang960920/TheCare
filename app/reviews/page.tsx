@@ -335,7 +335,7 @@ export default function ReviewsPage() {
                         <div className="w-6 h-6 rounded-full bg-cyan/20 flex items-center justify-center">
                           <MessageCircle size={12} className="text-cyan-dark" />
                         </div>
-                        <span className="text-sm font-semibold text-navy">클린마스터</span>
+                        <span className="text-sm font-semibold text-navy">더케어</span>
                         {selectedReview.adminReplyDate && (
                           <span className="text-xs text-slate-400 ml-auto">
                             {selectedReview.adminReplyDate}

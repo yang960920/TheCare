@@ -151,7 +151,7 @@ export default function HomePage() {
             <p className="text-white/70 text-lg md:text-xl leading-relaxed mb-8 max-w-lg">
               줄눈 시공부터 입주 청소, 나노 코팅까지.
               <br />
-              클린마스터가 완벽한 클리닝을 약속합니다.
+              더케어가 완벽한 클리닝을 약속합니다.
             </p>
 
             {/* CTA 버튼 2개 */}
@@ -226,7 +226,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════════════════════════════════════════
-       *  섹션 3: 숫자로 보는 클린마스터 — 통계 배너
+       *  섹션 3: 숫자로 보는 더케어 — 통계 배너
        * ═══════════════════════════════════════════════ */}
       <section className="py-16 md:py-20 bg-navy relative overflow-hidden">
         {/* 배경 데코레이션 */}
@@ -316,7 +316,7 @@ export default function HomePage() {
             {/* 배경 이미지 */}
             <Image
               src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=1200&q=80"
-              alt="클린마스터 아카데미 교육 배너"
+              alt="더케어 아카데미 교육 배너"
               width={1200}
               height={400}
               className="w-full h-64 md:h-80 object-cover"
@@ -331,7 +331,7 @@ export default function HomePage() {
                   Academy
                 </span>
                 <h2 className="font-display font-bold text-2xl md:text-3xl lg:text-4xl text-white mt-2 mb-4">
-                  클린마스터 아카데미에서
+                  더케어 아카데미에서
                   <br />
                   전문가로 성장하세요
                 </h2>
