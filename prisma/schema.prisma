@@ -142,7 +142,7 @@ model CompanyInfo {
   businessNumber String @default("282-55-00733")
   address        String @default("경기도 양주시 화합로1710번길 76, 4층 공장435호(옥정동, 슈프림더브릭스타워)")
   phone          String @default("031-0000-0000")
-  email          String @default("iumwebstudio@gmail.com")
+  email          String @default("bbonomall1021@gmail.com")
   updatedAt      DateTime @updatedAt
 
   @@map("company_info")

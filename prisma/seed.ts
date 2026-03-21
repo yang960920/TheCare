@@ -113,7 +113,7 @@ async function main() {
       businessNumber: "282-55-00733",
       address: "경기도 양주시 화합로1710번길 76, 4층 공장435호(옥정동, 슈프림더브릭스타워)",
       phone: "031-0000-0000",
-      email: "iumwebstudio@gmail.com",
+      email: "bbonomall1021@gmail.com",
     },
   });
 
