@@ -167,7 +167,7 @@ export default function QuotePage() {
       phone,
       serviceType: serviceNames,
       area: areaLabel,
-      memo: `[가견적] ${breakdown.map((b) => `${b.label}: ${b.price}만원`).join(" / ")} | 합계: ${totalPrice}만원`,
+      memo: `[견적] ${breakdown.map((b) => b.label).join(", ")} | ${areaLabel} | 합계: ${totalPrice}만원`,
       status: "미확인",
       createdAt: new Date().toISOString().split("T")[0],
       contactDate: "",
@@ -207,7 +207,7 @@ export default function QuotePage() {
               Estimate
             </span>
             <h1 className="font-display font-bold text-3xl md:text-5xl lg:text-6xl text-white mt-3 mb-4">
-              가견적 확인
+              견적 확인
             </h1>
             <p className="text-white/60 text-base md:text-lg max-w-xl">
               원하시는 서비스를 선택하시면 예상 견적을 바로 확인할 수 있습니다
@@ -232,7 +232,7 @@ export default function QuotePage() {
             >
               <div className="bg-white rounded-2xl p-6 md:p-10 border border-slate-light/50">
                 <h2 className="font-display font-bold text-xl md:text-2xl text-navy mb-8">
-                  가견적 확인하기
+                  견적 확인하기
                 </h2>
 
                 <div className="space-y-8">
@@ -281,7 +281,6 @@ export default function QuotePage() {
                     <div className="space-y-3">
                       {SERVICES.map((svc) => {
                         const isChecked = selectedServices.has(svc.key);
-                        const price = areaSize ? svc.prices[areaSize] : null;
                         return (
                           <button
                             key={svc.key}
@@ -320,49 +319,19 @@ export default function QuotePage() {
                               </div>
                               <div className="text-xs text-navy/40 truncate">{svc.description}</div>
                             </div>
-
-                            {/* 가격 */}
-                            {price !== null && (
-                              <div className={`text-right flex-shrink-0 ${isChecked ? "text-cyan" : "text-navy/40"}`}>
-                                <span className="font-bold text-lg">{price}</span>
-                                <span className="text-xs ml-0.5">만원</span>
-                              </div>
-                            )}
                           </button>
                         );
                       })}
                     </div>
                   </div>
 
-                  {/* ── 합산 금액 표시 ── */}
-                  {areaSize && selectedServices.size > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-gradient-to-r from-navy to-navy-light rounded-xl p-5 flex items-center justify-between"
-                    >
-                      <div>
-                        <div className="text-white/60 text-sm">예상 가견적 합계</div>
-                        <div className="text-white/40 text-xs mt-0.5">
-                          {selectedServices.size}개 서비스 · {AREA_OPTIONS.find((a) => a.value === areaSize)?.label}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <span className="font-display font-black text-3xl text-cyan">
-                          {totalPrice}
-                        </span>
-                        <span className="text-white/60 text-sm ml-1">만원</span>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* ── 가견적 확인 버튼 ── */}
+                  {/* ── 견적 확인 버튼 ── */}
                   <button
                     type="button"
                     onClick={handleEstimate}
                     className="w-full py-4 bg-gradient-to-r from-cyan to-cyan-dark text-white font-bold rounded-xl hover:shadow-lg hover:shadow-cyan/25 transition-all duration-300 text-base"
                   >
-                    가견적 확인하기
+                    견적 확인하기
                   </button>
 
                   {/* ── 안내 문구 ── */}
@@ -499,28 +468,30 @@ export default function QuotePage() {
                           </svg>
                         </div>
                         <span className="font-bold text-navy text-base">
-                          가견적 결과 ({AREA_OPTIONS.find((a) => a.value === areaSize)?.label})
+                          견적 결과 ({AREA_OPTIONS.find((a) => a.value === areaSize)?.label})
                         </span>
                       </div>
 
                       {/* 서비스 리스트 */}
                       <div className="space-y-2.5 mb-5">
                         {breakdown.map((item) => (
-                          <div key={item.label} className="flex items-center justify-between bg-white/60 backdrop-blur-sm rounded-lg px-4 py-3">
+                          <div key={item.label} className="flex items-center bg-white/60 backdrop-blur-sm rounded-lg px-4 py-3">
                             <div className="flex items-center gap-2">
                               <svg className="w-4 h-4 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                               </svg>
                               <span className="text-sm font-medium text-navy">{item.label}</span>
                             </div>
-                            <span className="font-bold text-navy">{item.price}<span className="text-xs text-navy/50 ml-0.5">만원</span></span>
                           </div>
                         ))}
                       </div>
 
                       {/* 합계 */}
                       <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 text-center">
-                        <div className="text-navy/50 text-xs mb-1">예상 합계</div>
+                        <div className="text-navy/50 text-xs mb-1">
+                          {selectedServices.size}개 서비스 · {AREA_OPTIONS.find((a) => a.value === areaSize)?.label}
+                        </div>
+                        <div className="text-navy/50 text-xs mb-2">예상 합계</div>
                         <span className="font-display font-black text-3xl text-navy">
                           {totalPrice}
                         </span>
