@@ -12,12 +12,14 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await req.json();
+    const { id: _, createdAt, updatedAt, ...data } = body;
     const review = await prisma.review.update({
       where: { id },
-      data: body,
+      data,
     });
     return NextResponse.json(review);
-  } catch {
+  } catch (e) {
+    console.error("Review PATCH error:", e);
     return NextResponse.json({ error: "수정 실패" }, { status: 400 });
   }
 }

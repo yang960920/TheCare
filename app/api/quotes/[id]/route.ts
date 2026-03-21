@@ -11,9 +11,10 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await req.json();
+    const { id: _, createdAt, updatedAt, ...data } = body;
     const quote = await prisma.quoteInquiry.update({
       where: { id },
-      data: body,
+      data,
     });
     return NextResponse.json(quote);
   } catch {

@@ -11,12 +11,14 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await req.json();
+    const { id: _, createdAt, updatedAt, ...data } = body;
     const service = await prisma.service.update({
       where: { id },
-      data: body,
+      data,
     });
     return NextResponse.json(service);
-  } catch {
+  } catch (e) {
+    console.error("Service PATCH error:", e);
     return NextResponse.json({ error: "수정 실패" }, { status: 400 });
   }
 }

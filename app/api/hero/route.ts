@@ -15,12 +15,14 @@ export async function GET() {
 export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();
+    const { id, updatedAt, ...data } = body;
     const hero = await prisma.heroSection.update({
       where: { id: "hero_main" },
-      data: body,
+      data,
     });
     return NextResponse.json(hero);
-  } catch {
+  } catch (e) {
+    console.error("Hero PATCH error:", e);
     return NextResponse.json({ error: "수정 실패" }, { status: 400 });
   }
 }

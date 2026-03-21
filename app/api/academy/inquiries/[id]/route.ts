@@ -9,9 +9,10 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await req.json();
+    const { id: _, createdAt, updatedAt, ...data } = body;
     const inquiry = await prisma.academyInquiry.update({
       where: { id },
-      data: body,
+      data,
     });
     return NextResponse.json(inquiry);
   } catch {

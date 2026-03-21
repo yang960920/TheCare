@@ -18,7 +18,7 @@ export async function GET() {
 export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();
-    const { stats, ...companyData } = body;
+    const { stats, id, createdAt, updatedAt, ...companyData } = body;
 
     // 회사 기본 정보 수정
     if (Object.keys(companyData).length > 0) {
@@ -47,7 +47,8 @@ export async function PATCH(req: NextRequest) {
       orderBy: { order: "asc" },
     });
     return NextResponse.json({ ...result, stats: updatedStats });
-  } catch {
+  } catch (e) {
+    console.error("Company PATCH error:", e);
     return NextResponse.json({ error: "수정 실패" }, { status: 400 });
   }
 }
