@@ -1,0 +1,192 @@
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  TheCare — Prisma Schema (NeonDB PostgreSQL)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ═══════════════════════════════════════════════
+//  히어로 섹션 (단일 레코드)
+// ═══════════════════════════════════════════════
+model HeroSection {
+  id         String @id @default("hero_main")
+  headline   String @default("깨끗한 공간, 건강한 생활의 시작")
+  subCopy    String @default("줄눈 시공부터 입주 청소, 나노 코팅까지.\n더케어가 완벽한 클리닝을 약속합니다.")
+  cta1Text   String @default("무료 견적 받기")
+  cta1Link   String @default("/quote")
+  cta2Text   String @default("서비스 둘러보기")
+  cta2Link   String @default("/about")
+  bgImageUrl String @default("")
+  updatedAt  DateTime @updatedAt
+
+  @@map("hero_sections")
+}
+
+// ═══════════════════════════════════════════════
+//  서비스 항목
+// ═══════════════════════════════════════════════
+model Service {
+  id          String  @id @default(cuid())
+  name        String
+  summary     String
+  description String
+  imageUrl    String  @default("")
+  visible     Boolean @default(true)
+  order       Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("services")
+}
+
+// ═══════════════════════════════════════════════
+//  고객 후기 (관리자 답변 포함)
+// ═══════════════════════════════════════════════
+model Review {
+  id             String  @id @default(cuid())
+  customerName   String
+  serviceType    String
+  rating         Int     @default(5)
+  content        String
+  imageUrl       String  @default("")
+  visible        Boolean @default(true)
+  adminReply     String  @default("")
+  adminReplyDate String  @default("")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("reviews")
+}
+
+// ═══════════════════════════════════════════════
+//  아카데미 과정
+// ═══════════════════════════════════════════════
+model AcademyCourse {
+  id          String  @id @default(cuid())
+  title       String
+  duration    String
+  price       String
+  capacity    Int     @default(15)
+  description String
+  imageUrl    String  @default("")
+  visible     Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("academy_courses")
+}
+
+// ═══════════════════════════════════════════════
+//  아카데미 수강 신청
+// ═══════════════════════════════════════════════
+model AcademyInquiry {
+  id           String @id @default(cuid())
+  customerName String
+  phone        String
+  courseTitle   String
+  memo         String @default("")
+  status       String @default("미확인") // 미확인 | 확인 | 완료
+  createdAt    DateTime @default(now())
+
+  @@map("academy_inquiries")
+}
+
+// ═══════════════════════════════════════════════
+//  포인트 이벤트 배너
+// ═══════════════════════════════════════════════
+model PointEvent {
+  id          String  @id @default(cuid())
+  title       String
+  description String
+  startDate   String
+  endDate     String
+  bgColor     String  @default("#00D4FF")
+  visible     Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("point_events")
+}
+
+// ═══════════════════════════════════════════════
+//  견적 문의 (연락 이력 포함)
+// ═══════════════════════════════════════════════
+model QuoteInquiry {
+  id           String @id @default(cuid())
+  customerName String
+  phone        String
+  serviceType  String
+  area         String
+  memo         String @default("")
+  status       String @default("미확인") // 미확인 | 확인 | 완료
+  contactDate  String @default("")
+  contactMemo  String @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("quote_inquiries")
+}
+
+// ═══════════════════════════════════════════════
+//  회사 정보 (단일 레코드)
+// ═══════════════════════════════════════════════
+model CompanyInfo {
+  id             String @id @default("company_main")
+  name           String @default("더케어")
+  ceo            String @default("문성민")
+  businessNumber String @default("282-55-00733")
+  address        String @default("경기도 양주시 화합로1710번길 76, 4층 공장435호(옥정동, 슈프림더브릭스타워)")
+  phone          String @default("031-0000-0000")
+  email          String @default("iumwebstudio@gmail.com")
+  updatedAt      DateTime @updatedAt
+
+  @@map("company_info")
+}
+
+// ═══════════════════════════════════════════════
+//  회사 통계 (CompanyInfo의 stats 대체)
+// ═══════════════════════════════════════════════
+model CompanyStat {
+  id    String @id @default(cuid())
+  label String
+  value String
+  order Int   @default(0)
+
+  @@map("company_stats")
+}
+
+// ═══════════════════════════════════════════════
+//  팝업 공지
+// ═══════════════════════════════════════════════
+model Popup {
+  id        String  @id @default(cuid())
+  title     String
+  content   String
+  imageUrl  String  @default("")
+  linkUrl   String  @default("")
+  startDate String
+  endDate   String
+  position  String  @default("center")
+  visible   Boolean @default(true)
+  hideToday Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("popups")
+}
+
+// ═══════════════════════════════════════════════
+//  포인트 적립 정책 (단일 레코드)
+// ═══════════════════════════════════════════════
+model PointPolicy {
+  id   String @id @default("policy_main")
+  text String @default("서비스 이용 시 결제 금액의 3~5%가 자동으로 포인트로 적립됩니다.\n1포인트 = 1원으로 다음 서비스 이용 시 할인 적용 가능합니다.\n포인트 유효기간: 적립일로부터 1년")
+  updatedAt DateTime @updatedAt
+
+  @@map("point_policies")
+}
