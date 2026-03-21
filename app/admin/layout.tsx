@@ -9,7 +9,7 @@
  */
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -29,6 +29,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import ToastContainer from "@/components/admin/Toast";
+import { useAdminStore } from "@/store/adminStore";
 
 /* ── 사이드바 메뉴 항목 정의 ── */
 const MENU_ITEMS = [
@@ -61,13 +62,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [loginPw, setLoginPw] = useState("");
   const [loginError, setLoginError] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
+  const loadAll = useAdminStore((s) => s.loadAll);
 
-  /* sessionStorage에서 로그인 상태 복원 */
-  React.useEffect(() => {
+  /* sessionStorage에서 로그인 상태 복원 + 데이터 로드 */
+  useEffect(() => {
     const saved = sessionStorage.getItem("adminLoggedIn");
-    if (saved === "true") setIsAdminLoggedIn(true);
+    if (saved === "true") {
+      setIsAdminLoggedIn(true);
+      loadAll();
+    }
     setIsLoaded(true);
-  }, []);
+  }, [loadAll]);
 
   /* 로그인 처리 */
   const handleAdminLogin = (e: React.FormEvent) => {
@@ -76,6 +81,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       setIsAdminLoggedIn(true);
       sessionStorage.setItem("adminLoggedIn", "true");
       setLoginError("");
+      loadAll();
     } else {
       setLoginError("아이디 또는 비밀번호가 올바르지 않습니다.");
     }
