@@ -16,80 +16,37 @@ import { motion } from "framer-motion";
 import ServiceCard from "@/components/ui/ServiceCard";
 import ReviewCard from "@/components/ui/ReviewCard";
 
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- *  더미 데이터 정의
- * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-/* ── 5개 서비스 항목 ── */
-const SERVICES = [
-  {
-    title: "줄눈 시공",
-    description:
-      "욕실, 주방, 베란다 타일 줄눈을 전문 장비로 깔끔하게 시공합니다. 곰팡이 방지 및 미관 개선 효과가 뛰어납니다.",
-    icon: (
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-      </svg>
-    ),
-  },
-  {
-    title: "입주 청소",
-    description:
-      "신축·이사 전후 전문 입주 청소 서비스입니다. 구석구석 세밀한 클리닝으로 새 집처럼 만들어 드립니다.",
-    icon: (
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-      </svg>
-    ),
-  },
-  {
-    title: "탄성 코트",
-    description:
-      "바닥재 보호와 미끄럼 방지를 위한 탄성 코트 시공입니다. 내구성과 안전성을 동시에 확보합니다.",
-    icon: (
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-      </svg>
-    ),
-  },
-  {
-    title: "나노 코팅",
-    description:
-      "주방 상판, 욕실 유리 등에 나노 코팅을 적용하여 오염 방지 및 세균 번식을 억제합니다.",
-    icon: (
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-      </svg>
-    ),
-  },
-  {
-    title: "새집증후군 제거",
-    description:
-      "포름알데히드, VOC 등 유해물질 제거 시공입니다. 가족의 건강을 위한 필수 서비스입니다.",
-    icon: (
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-      </svg>
-    ),
-  },
-];
+/* ── 서비스명 → 아이콘 매핑 ── */
+const SERVICE_ICONS: Record<string, React.ReactNode> = {
+  "줄눈 시공": (<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" /></svg>),
+  "입주 청소": (<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>),
+  "탄성 코트": (<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>),
+  "나노 코팅": (<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>),
+  "새집증후군 제거": (<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>),
+};
+const DEFAULT_SVC_ICON = (<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>);
 
 /* ── 타입 정의 ── */
 interface HeroData { headline: string; subCopy: string; cta1Text: string; cta1Link: string; cta2Text: string; cta2Link: string; bgImageUrl: string; }
 interface Review { id: string; customerName: string; rating: number; serviceType: string; content: string; visible: boolean; }
 interface Stat { label: string; value: string; }
+interface ServiceData { id: string; name: string; summary: string; description: string; visible: boolean; order: number; }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  *  메인 홈 페이지 컴포넌트
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 export default function HomePage() {
   const [hero, setHero] = useState<HeroData | null>(null);
+  const [services, setServices] = useState<ServiceData[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState<Stat[]>([]);
 
   useEffect(() => {
     fetch("/api/hero").then(r => r.json()).then((data: HeroData) => {
       setHero(data);
+    }).catch(() => {});
+    fetch("/api/services").then(r => r.json()).then((data: ServiceData[]) => {
+      setServices(data.filter(s => s.visible).sort((a, b) => a.order - b.order));
     }).catch(() => {});
     fetch("/api/reviews").then(r => r.json()).then((data: Review[]) => {
       setReviews(data.filter(r => r.visible).slice(0, 3));
@@ -210,12 +167,12 @@ export default function HomePage() {
 
           {/* 서비스 카드 그리드 (모바일: 1열, 태블릿: 2열, 데스크탑: 3열) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {SERVICES.map((service, index) => (
+            {services.map((svc, index) => (
               <ServiceCard
-                key={service.title}
-                icon={service.icon}
-                title={service.title}
-                description={service.description}
+                key={svc.id}
+                icon={SERVICE_ICONS[svc.name] || DEFAULT_SVC_ICON}
+                title={svc.name}
+                description={svc.summary || svc.description}
                 index={index}
               />
             ))}
