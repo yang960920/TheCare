@@ -13,6 +13,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuthStore } from "@/store/authStore";
 
 /* ── 네비게이션 메뉴 정의 ── */
 interface SubItem {
@@ -83,6 +84,7 @@ const NAV_ITEMS: NavItem[] = [
     label: "고객센터",
     children: [
       { href: "/customer/notices", label: "공지사항" },
+      { href: "/customer/reviews", label: "후기 게시판" },
       { href: "/customer/points", label: "포인트 신청/사용" },
       { href: "/quote", label: "견적 및 예약 문의" },
     ],
@@ -96,6 +98,9 @@ export default function Header() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileOpenSubs, setMobileOpenSubs] = useState<Set<string>>(new Set());
   const dropdownTimeout = useRef<NodeJS.Timeout | null>(null);
+  const { user, isLoggedIn, logout } = useAuthStore();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   /* ── 스크롤 이벤트 ── */
   useEffect(() => {
@@ -238,6 +243,62 @@ export default function Header() {
             })}
           </nav>
 
+          {/* ── 데스크탑 로그인/마이페이지 ── */}
+          <div className="hidden xl:flex items-center ml-4">
+            {isLoggedIn && user ? (
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                    isScrolled ? "text-navy/70 hover:text-gold" : "text-white/80 hover:text-white"
+                  }`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  {user.nickname}
+                  <svg className={`w-3.5 h-3.5 transition-transform ${showUserMenu ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <AnimatePresence>
+                  {showUserMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 8 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute top-full right-0 mt-1 w-44 bg-white rounded-xl shadow-lg border border-slate-light/50 overflow-hidden z-50"
+                    >
+                      <div className="py-2">
+                        <Link href="/mypage" onClick={() => setShowUserMenu(false)} className="block px-4 py-2.5 text-sm text-navy/70 hover:text-gold hover:bg-gold-pale/30 transition-colors">
+                          마이페이지
+                        </Link>
+                        <button
+                          onClick={() => { logout(); setShowUserMenu(false); }}
+                          className="w-full text-left px-4 py-2.5 text-sm text-navy/70 hover:text-red-500 hover:bg-red-50 transition-colors"
+                        >
+                          로그아웃
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <Link
+                href="/auth"
+                className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                  isScrolled
+                    ? "bg-gold text-white hover:bg-gold-dark"
+                    : "bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm"
+                }`}
+              >
+                로그인
+              </Link>
+            )}
+          </div>
+
           {/* ── 모바일 햄버거 버튼 ── */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -332,6 +393,32 @@ export default function Header() {
                   </div>
                 );
               })}
+              {/* ── 모바일 로그인/마이페이지 ── */}
+              <div className="border-t border-slate-light/50 mt-2 pt-3">
+                {isLoggedIn && user ? (
+                  <>
+                    <Link
+                      href="/mypage"
+                      className="block px-4 py-3 rounded-lg text-sm font-semibold text-navy/70 hover:text-gold hover:bg-gold-pale/20 transition-colors"
+                    >
+                      마이페이지 ({user.nickname})
+                    </Link>
+                    <button
+                      onClick={() => { logout(); setIsMobileMenuOpen(false); }}
+                      className="w-full text-left px-4 py-3 rounded-lg text-sm font-semibold text-navy/70 hover:text-red-500 transition-colors"
+                    >
+                      로그아웃
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    href="/auth"
+                    className="block px-4 py-3 rounded-lg text-sm font-semibold text-gold hover:bg-gold-pale/20 transition-colors"
+                  >
+                    로그인 / 회원가입
+                  </Link>
+                )}
+              </div>
             </nav>
           </motion.div>
         )}

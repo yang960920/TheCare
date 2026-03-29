@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
         rating: body.rating ?? 5,
         content: body.content,
         imageUrl: body.imageUrl ?? "",
+        visible: false, // 작성 시 기본 리뷰 비공개 (관리자 승인 대기)
       },
     });
     return NextResponse.json(review, { status: 201 });

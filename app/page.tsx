@@ -13,6 +13,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { MoveRight } from "lucide-react";
+import PopupManager from "@/components/ui/PopupManager";
 
 /* ── 5개 서비스 항목 ── */
 const SERVICES = [
@@ -68,37 +70,34 @@ const SERVICES = [
   },
 ];
 
-/* ── 기본 통계 (DB 로드 전 폴백) ── */
-const DEFAULT_STATS = [
-  { number: "15,000+", label: "시공 완료 건수" },
-  { number: "98%", label: "고객 만족도" },
-  { number: "3년+", label: "업계 경력" },
-  { number: "200+", label: "전문 기술 인력" },
-];
-
-/* ── 기본 히어로 (DB 로드 전 폴백) ── */
-const DEFAULT_HERO = {
-  headline: "깨끗한 공간,\n건강한 생활의\n시작",
-  subCopy: "입주 청소부터 줄눈 시공, 나노 코팅까지.\n더케어가 완벽한 클리닝을 약속합니다.",
-  cta1Text: "무료 견적 받기",
-  cta1Link: "/quote",
-  cta2Text: "회사 소개",
-  cta2Link: "/about",
-  bgImageUrl: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1920&q=80",
+type HeroData = {
+  headline: string;
+  subCopy: string;
+  cta1Text: string;
+  cta1Link: string;
+  cta2Text: string;
+  cta2Link: string;
+  bgImageUrl: string;
 };
 
+type StatData = { number: string; label: string };
+
 export default function HomePage() {
-  const [hero, setHero] = useState(DEFAULT_HERO);
-  const [stats, setStats] = useState(DEFAULT_STATS);
+  const [hero, setHero] = useState<HeroData | null>(null);
+  const [stats, setStats] = useState<StatData[] | null>(null);
+  const [dbServices, setDbServices] = useState<any[] | null>(null);
 
   /* DB에서 히어로 & 회사 정보 로드 */
   useEffect(() => {
+    fetch("/api/services")
+      .then((r) => r.json())
+      .then((data) => setDbServices(data))
+      .catch(() => {});
+
     fetch("/api/hero")
       .then((r) => r.json())
-      .then((data) => {
-        if (data && data.headline) setHero(data);
-      })
-      .catch(() => {/* 폴백 유지 */});
+      .then((data) => { if (data && data.headline) setHero(data); })
+      .catch(() => {});
 
     fetch("/api/company")
       .then((r) => r.json())
@@ -110,15 +109,14 @@ export default function HomePage() {
           })));
         }
       })
-      .catch(() => {/* 폴백 유지 */});
+      .catch(() => {});
   }, []);
 
-  /* 헤드라인 줄바꿈 처리 */
-  const headlineLines = hero.headline.split("\n");
-
   return (
-    <>
-      {/* ═══ 히어로 섹션 ═══ */}
+    <main className="min-h-screen">
+      <PopupManager />
+      {/* ═══ 히어로 섹션 (DB 로드 완료 후에만 표시) ═══ */}
+      {hero && (
       <section className="relative z-0 min-h-screen flex items-center overflow-hidden">
         {hero.bgImageUrl && (
           <Image
@@ -265,6 +263,7 @@ export default function HomePage() {
           </svg>
         </div>
       </section>
+      )}
 
       {/* ═══ 서비스 요약 ═══ */}
       <section className="section-padding bg-white">
@@ -286,7 +285,13 @@ export default function HomePage() {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {SERVICES.map((service, index) => (
+            {(dbServices
+                ? SERVICES.filter(s => {
+                    const dbSvc = dbServices.find(db => db.name === s.title);
+                    return dbSvc ? dbSvc.visible : true;
+                  })
+                : SERVICES
+            ).map((service, index) => (
               <motion.div
                 key={service.title}
                 initial={{ opacity: 0, y: 30 }}
@@ -318,7 +323,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══ 통계 배너 (DB 기반) ═══ */}
+      {/* ═══ 통계 배너 (DB 기반 — 로드 완료 후에만 표시) ═══ */}
+      {stats && (
       <section className="py-16 md:py-20 bg-navy relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-gold/5 rounded-full blur-3xl" />
@@ -343,6 +349,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* ═══ 견적문의 CTA ═══ */}
       <section className="py-16 md:py-20 bg-gradient-to-br from-cream to-white">
@@ -385,6 +392,6 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
-    </>
+    </main>
   );
 }

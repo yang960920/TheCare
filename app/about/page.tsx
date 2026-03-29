@@ -144,7 +144,7 @@ export default function AboutPage() {
               <div className="flex gap-4"><span className="font-semibold text-navy w-28 flex-shrink-0">업태</span><span>서비스업, 교육서비스업</span></div>
               <div className="flex gap-4"><span className="font-semibold text-navy w-28 flex-shrink-0">종목</span><span>건축물 일반 청소업, 교육(줄눈, 청소)</span></div>
               <div className="flex gap-4"><span className="font-semibold text-navy w-28 flex-shrink-0">소재지</span><span>경기도 양주시 화합로1710번길 76, 4층 공장435호(옥정동, 슈프림더브릭스타워)</span></div>
-              <div className="flex gap-4"><span className="font-semibold text-navy w-28 flex-shrink-0">이메일</span><span>iumwebstudio@gmail.com</span></div>
+              <div className="flex gap-4"><span className="font-semibold text-navy w-28 flex-shrink-0">이메일</span><span>bbonomall1021@gmail.com</span></div>
             </div>
           </motion.div>
         </div>

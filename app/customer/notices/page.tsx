@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Pagination from "@/components/ui/Pagination";
 
 interface Notice {
   id: string;
@@ -16,6 +17,10 @@ export default function NoticesPage() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
+
+  /* 페이징 상태 */
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
 
   useEffect(() => {
     fetch("/api/notices")
@@ -47,9 +52,10 @@ export default function NoticesPage() {
           ) : notices.length === 0 ? (
             <div className="text-center py-16 text-navy/40">등록된 공지사항이 없습니다.</div>
           ) : (
-            <div className="space-y-3">
-              {notices.map((notice, i) => (
-                <motion.div
+            <>
+              <div className="space-y-3">
+                {notices.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((notice, i) => (
+                  <motion.div
                   key={notice.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -81,7 +87,13 @@ export default function NoticesPage() {
                   )}
                 </motion.div>
               ))}
-            </div>
+              </div>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={Math.ceil(notices.length / itemsPerPage)}
+                onPageChange={setCurrentPage}
+              />
+            </>
           )}
         </div>
       </section>

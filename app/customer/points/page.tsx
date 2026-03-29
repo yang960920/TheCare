@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Pagination from "@/components/ui/Pagination";
 
 interface PointApp {
   id: string;
@@ -31,10 +32,15 @@ function maskName(name: string): string {
 
 export default function PointsPage() {
   const [applications, setApplications] = useState<PointApp[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"earn" | "use">("earn");
   const [showForm, setShowForm] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  /* 페이징 상태 */
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
 
   /* 폼 필드 */
   const [name, setName] = useState("");
@@ -49,6 +55,11 @@ export default function PointsPage() {
       .then((data: PointApp[]) => setApplications(data))
       .catch(() => {})
       .finally(() => setLoading(false));
+
+    fetch("/api/events")
+      .then((r) => r.json())
+      .then((data) => setEvents(data))
+      .catch(() => {});
   }, []);
 
   const filtered = applications.filter((a) => a.type === tab);
@@ -108,12 +119,36 @@ export default function PointsPage() {
       {/* ═══ 메인 콘텐츠 ═══ */}
       <section className="section-padding bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          {/* 이벤트 배너 */}
+          {events.filter((e) => e.visible).map((e) => (
+            <motion.div
+              key={e.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8 p-6 md:p-8 rounded-2xl shadow-lg border border-white/20 text-white"
+              style={{ backgroundColor: e.bgColor || "#00D4FF" }}
+            >
+              <h3 className="font-display font-bold text-xl md:text-2xl mb-2">{e.title}</h3>
+              <p className="opacity-90 whitespace-pre-wrap text-sm md:text-base leading-relaxed mb-4">{e.description}</p>
+              <div className="inline-block px-3 py-1.5 rounded-lg bg-black/10 backdrop-blur-sm text-xs font-semibold">
+                이벤트 기간: {e.startDate} ~ {e.endDate}
+              </div>
+            </motion.div>
+          ))}
+
           {/* 탭 전환 */}
           <div className="flex gap-2 mb-6">
-            <button onClick={() => setTab("earn")} className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors ${tab === "earn" ? "bg-gold text-white" : "bg-cream text-navy/60 hover:text-navy"}`}>
+            <button
+              onClick={() => { setTab("earn"); setCurrentPage(1); }}
+              className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors ${tab === "earn" ? "bg-gold text-white" : "bg-cream text-navy/60 hover:text-navy"}`}
+            >
               적립 신청
             </button>
-            <button onClick={() => setTab("use")} className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors ${tab === "use" ? "bg-gold text-white" : "bg-cream text-navy/60 hover:text-navy"}`}>
+            <button
+              onClick={() => { setTab("use"); setCurrentPage(1); }}
+              className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors ${tab === "use" ? "bg-gold text-white" : "bg-cream text-navy/60 hover:text-navy"}`}
+            >
               사용 신청
             </button>
           </div>
@@ -132,44 +167,51 @@ export default function PointsPage() {
           ) : filtered.length === 0 ? (
             <div className="text-center py-16 text-navy/40">등록된 {tab === "earn" ? "적립" : "사용"} 신청이 없습니다.</div>
           ) : (
-            <div className="space-y-4">
-              {filtered.map((app, i) => (
-                <motion.div
-                  key={app.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: i * 0.05 }}
-                  className="bg-cream rounded-xl p-5 gold-border"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-navy text-sm">{maskName(app.applicantName)}</span>
-                      {statusBadge(app.status)}
-                    </div>
-                    <span className="text-navy/30 text-xs">{new Date(app.createdAt).toLocaleDateString("ko-KR")}</span>
-                  </div>
-                  <p className="text-navy/60 text-sm leading-relaxed mb-2">{app.content}</p>
-                  {app.type === "use" && app.requestedPoints > 0 && (
-                    <div className="text-sm text-gold font-medium">요청 포인트: {app.requestedPoints.toLocaleString()}P</div>
-                  )}
-                  {app.approvedPoints > 0 && (
-                    <div className="text-sm text-green-600 font-medium">승인 포인트: {app.approvedPoints.toLocaleString()}P</div>
-                  )}
-                  {app.approvalDetails && (
-                    <div className="text-xs text-navy/40 mt-1">{app.approvalDetails}</div>
-                  )}
-                  {app.adminReply && (
-                    <div className="mt-3 bg-white rounded-lg p-3 border border-gold/10">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-bold text-gold">관리자 답변</span>
-                        {app.adminReplyDate && <span className="text-[10px] text-navy/30">{app.adminReplyDate}</span>}
+            <>
+              <div className="space-y-4">
+                {filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((app, i) => (
+                  <motion.div
+                    key={app.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: i * 0.05 }}
+                    className="bg-cream rounded-xl p-5 gold-border"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-navy text-sm">{maskName(app.applicantName)}</span>
+                        {statusBadge(app.status)}
                       </div>
-                      <p className="text-navy/60 text-sm">{app.adminReply}</p>
+                      <span className="text-navy/30 text-xs">{new Date(app.createdAt).toLocaleDateString("ko-KR")}</span>
                     </div>
-                  )}
-                </motion.div>
-              ))}
-            </div>
+                    <p className="text-navy/60 text-sm leading-relaxed mb-2">{app.content}</p>
+                    {app.type === "use" && app.requestedPoints > 0 && (
+                      <div className="text-sm text-gold font-medium">요청 포인트: {app.requestedPoints.toLocaleString()}P</div>
+                    )}
+                    {app.approvedPoints > 0 && (
+                      <div className="text-sm text-green-600 font-medium">승인 포인트: {app.approvedPoints.toLocaleString()}P</div>
+                    )}
+                    {app.approvalDetails && (
+                      <div className="text-xs text-navy/40 mt-1">{app.approvalDetails}</div>
+                    )}
+                    {app.adminReply && (
+                      <div className="mt-3 bg-white rounded-lg p-3 border border-gold/10">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs font-bold text-gold">관리자 답변</span>
+                          {app.adminReplyDate && <span className="text-[10px] text-navy/30">{app.adminReplyDate}</span>}
+                        </div>
+                        <p className="text-navy/60 text-sm">{app.adminReply}</p>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={Math.ceil(filtered.length / itemsPerPage)}
+                onPageChange={setCurrentPage}
+              />
+            </>
           )}
         </div>
       </section>

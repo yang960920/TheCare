@@ -196,14 +196,14 @@ export default function QuotePage() {
        *  페이지 히어로
        * ═══════════════════════════════════════════════ */}
       <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 bg-navy overflow-hidden">
-        <div className="absolute top-10 right-10 w-72 h-72 bg-cyan/5 rounded-full blur-3xl" />
+        <div className="absolute top-10 right-10 w-72 h-72 bg-gold/5 rounded-full blur-3xl" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <span className="text-cyan font-semibold text-sm tracking-wider uppercase">
+            <span className="text-gold font-semibold text-sm tracking-wider uppercase">
               Estimate
             </span>
             <h1 className="font-display font-bold text-3xl md:text-5xl lg:text-6xl text-white mt-3 mb-4">
@@ -239,7 +239,7 @@ export default function QuotePage() {
                   {/* ── Step 1: 평형대 선택 ── */}
                   <div>
                     <label className="flex items-center gap-2 text-sm font-semibold text-navy mb-3">
-                      <span className="w-6 h-6 rounded-full bg-cyan/10 text-cyan text-xs font-bold flex items-center justify-center">1</span>
+                      <span className="w-6 h-6 rounded-full bg-gold/10 text-gold text-xs font-bold flex items-center justify-center">1</span>
                       평형대를 선택해주세요
                     </label>
                     <div className="grid grid-cols-3 gap-3">
@@ -250,8 +250,8 @@ export default function QuotePage() {
                           onClick={() => setAreaSize(opt.value)}
                           className={`relative p-4 rounded-xl border-2 text-center transition-all duration-300 ${
                             areaSize === opt.value
-                              ? "border-cyan bg-cyan/5 shadow-md shadow-cyan/10"
-                              : "border-slate-light hover:border-cyan/40 bg-white"
+                              ? "border-gold bg-gold/5 shadow-md shadow-gold/10"
+                              : "border-slate-light hover:border-gold/40 bg-white"
                           }`}
                         >
                           <div className={`font-bold text-lg ${areaSize === opt.value ? "text-navy" : "text-navy/70"}`}>
@@ -260,7 +260,7 @@ export default function QuotePage() {
                           <div className="text-xs text-navy/60 mt-0.5">{opt.sub}</div>
                           {/* 선택 체크 */}
                           {areaSize === opt.value && (
-                            <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-cyan flex items-center justify-center">
+                            <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-gold flex items-center justify-center">
                               <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                               </svg>
@@ -274,7 +274,7 @@ export default function QuotePage() {
                   {/* ── Step 2: 서비스 체크박스 ── */}
                   <div>
                     <label className="flex items-center gap-2 text-sm font-semibold text-navy mb-3">
-                      <span className="w-6 h-6 rounded-full bg-cyan/10 text-cyan text-xs font-bold flex items-center justify-center">2</span>
+                      <span className="w-6 h-6 rounded-full bg-gold/10 text-gold text-xs font-bold flex items-center justify-center">2</span>
                       원하시는 서비스를 선택해주세요
                       <span className="text-navy/50 text-xs font-normal">(복수 선택 가능)</span>
                     </label>
@@ -288,14 +288,14 @@ export default function QuotePage() {
                             onClick={() => toggleService(svc.key)}
                             className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 text-left transition-all duration-300 ${
                               isChecked
-                                ? "border-cyan bg-cyan/5 shadow-md shadow-cyan/10"
-                                : "border-slate-light hover:border-cyan/40 bg-white"
+                                ? "border-gold bg-gold/5 shadow-md shadow-gold/10"
+                                : "border-slate-light hover:border-gold/40 bg-white"
                             }`}
                           >
                             {/* 체크박스 */}
                             <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                               isChecked
-                                ? "border-cyan bg-cyan"
+                                ? "border-gold bg-gold"
                                 : "border-slate-light"
                             }`}>
                               {isChecked && (
@@ -307,7 +307,7 @@ export default function QuotePage() {
 
                             {/* 아이콘 */}
                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
-                              isChecked ? "bg-cyan/10 text-cyan" : "bg-slate-50 text-navy/30"
+                              isChecked ? "bg-gold/10 text-gold" : "bg-slate-50 text-navy/30"
                             }`}>
                               {svc.icon}
                             </div>
@@ -357,50 +357,34 @@ export default function QuotePage() {
             >
               {/* 전화 상담 카드 */}
               <div className="bg-white rounded-2xl p-6 border border-slate-light/50">
-                <div className="w-12 h-12 rounded-xl bg-cyan/10 flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
                 </div>
                 <h3 className="font-display font-bold text-lg text-navy mb-2">전화 상담</h3>
                 <p className="text-navy/60 text-sm mb-3">평일 09:00 ~ 18:00</p>
-                <a href="tel:031-0000-0000" className="text-cyan font-bold text-lg hover:underline">
+                <a href="tel:031-0000-0000" className="text-gold font-bold text-lg hover:underline">
                   031-0000-0000
                 </a>
               </div>
 
               {/* 카카오톡 상담 카드 */}
               <div className="bg-white rounded-2xl p-6 border border-slate-light/50">
-                <div className="w-12 h-12 rounded-xl bg-cyan/10 flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                 </div>
                 <h3 className="font-display font-bold text-lg text-navy mb-2">카카오톡 상담</h3>
                 <p className="text-navy/60 text-sm mb-3">24시간 접수 가능</p>
-                <span className="text-cyan font-bold text-lg">@thecare</span>
-              </div>
-
-              {/* 방문 상담 카드 */}
-              <div className="bg-white rounded-2xl p-6 border border-slate-light/50">
-                <div className="w-12 h-12 rounded-xl bg-cyan/10 flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <h3 className="font-display font-bold text-lg text-navy mb-2">방문 상담</h3>
-                <p className="text-navy/60 text-sm">
-                  경기도 양주시 화합로1710번길 76
-                  <br />
-                  4층 공장435호 (옥정동, 슈프림더브릭스타워)
-                </p>
+                <span className="text-gold font-bold text-lg">@thecare</span>
               </div>
 
               {/* 가격 표시 안내 */}
-              <div className="bg-cyan/5 border border-cyan/15 rounded-2xl p-5">
+              <div className="bg-gold/5 border border-gold/15 rounded-2xl p-5">
                 <div className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-cyan flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <div>
@@ -446,7 +430,7 @@ export default function QuotePage() {
                 {!submitted ? (
                   <>
                     {/* ── 가견적 결과 영역 ── */}
-                    <div className="bg-gradient-to-br from-cyan/5 to-cyan/10 p-6 md:p-8 rounded-t-2xl border-b border-cyan/10">
+                    <div className="bg-gradient-to-br from-gold/5 to-gold/10 p-6 md:p-8 rounded-t-2xl border-b border-gold/10">
                       {/* 닫기 버튼 */}
                       <div className="flex justify-end mb-2">
                         <button
@@ -461,7 +445,7 @@ export default function QuotePage() {
 
                       {/* 제목 */}
                       <div className="flex items-center gap-2 mb-5">
-                        <div className="w-6 h-6 rounded-full bg-cyan flex items-center justify-center">
+                        <div className="w-6 h-6 rounded-full bg-gold flex items-center justify-center">
                           <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                           </svg>
@@ -476,7 +460,7 @@ export default function QuotePage() {
                         {breakdown.map((item) => (
                           <div key={item.label} className="flex items-center bg-white/60 backdrop-blur-sm rounded-lg px-4 py-3">
                             <div className="flex items-center gap-2">
-                              <svg className="w-4 h-4 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                               </svg>
                               <span className="text-sm font-medium text-navy">{item.label}</span>
@@ -526,7 +510,7 @@ export default function QuotePage() {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="이름 (예: 홍길동)"
-                            className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-slate-light focus:border-cyan focus:ring-2 focus:ring-cyan/20 outline-none transition-all text-sm text-navy placeholder:text-slate"
+                            className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-slate-light focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all text-sm text-navy placeholder:text-slate"
                           />
                         </div>
 
@@ -542,7 +526,7 @@ export default function QuotePage() {
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
                             placeholder="연락처 (예: 010-1234-5678)"
-                            className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-slate-light focus:border-cyan focus:ring-2 focus:ring-cyan/20 outline-none transition-all text-sm text-navy placeholder:text-slate"
+                            className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-slate-light focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all text-sm text-navy placeholder:text-slate"
                           />
                         </div>
 
@@ -560,8 +544,8 @@ export default function QuotePage() {
                 ) : (
                   /* ── 신청 완료 화면 ── */
                   <div className="p-8 md:p-12 text-center">
-                    <div className="w-16 h-16 rounded-full bg-cyan/10 flex items-center justify-center mx-auto mb-5">
-                      <svg className="w-8 h-8 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-5">
+                      <svg className="w-8 h-8 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
@@ -575,7 +559,7 @@ export default function QuotePage() {
                     </p>
                     <button
                       onClick={closeModal}
-                      className="px-8 py-3 bg-gradient-to-r from-cyan to-cyan-dark text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-cyan/25 transition-all"
+                      className="px-8 py-3 bg-gradient-to-r from-gold to-gold-dark text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-gold/25 transition-all"
                     >
                       확인
                     </button>
