@@ -66,7 +66,7 @@ export default function AdminServicesPage() {
             <span className="text-sm font-medium text-slate-700">노출 여부</span>
             <ToggleSwitch checked={form.visible} onChange={() => setForm({ ...form, visible: !form.visible })} />
           </div>
-          <button onClick={handleSave} className="w-full py-3 bg-cyan-600 text-white rounded-xl text-sm font-medium hover:bg-cyan-700 transition-colors">저장</button>
+          <button onClick={handleSave} className="w-full py-3 bg-gold text-white rounded-xl text-sm font-medium hover:bg-gold-dark transition-colors">저장</button>
         </div>
       </SlidePanel>
     </>

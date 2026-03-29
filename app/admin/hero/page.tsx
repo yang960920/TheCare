@@ -40,7 +40,7 @@ export default function AdminHeroPage() {
   return (
     <>
       <PageHeader title="히어로 관리" description="메인 페이지 상단 히어로 섹션을 편집합니다">
-        <button onClick={handleSave} className="flex items-center gap-2 px-4 py-2.5 bg-cyan-600 text-white rounded-xl text-sm font-medium hover:bg-cyan-700 transition-colors">
+        <button onClick={handleSave} className="flex items-center gap-2 px-4 py-2.5 bg-gold text-white rounded-xl text-sm font-medium hover:bg-gold-dark transition-colors">
           <Save size={16} />
           저장
         </button>
@@ -93,13 +93,13 @@ export default function AdminHeroPage() {
             {form.bgImageUrl && (
               <Image src={form.bgImageUrl} alt="히어로 미리보기" fill className="object-cover" />
             )}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0A2540]/90 via-[#0A2540]/70 to-[#0A2540]/50" />
+            <div className="absolute inset-0 bg-gradient-to-r from-navy/90 via-navy/70 to-navy/50" />
             <div className="absolute inset-0 flex items-center p-8">
               <div className="max-w-md">
                 <h2 className="text-white font-bold text-xl sm:text-2xl mb-3 leading-tight whitespace-pre-line">{form.headline}</h2>
                 <p className="text-white/70 text-sm mb-5 whitespace-pre-line">{form.subCopy}</p>
                 <div className="flex gap-3">
-                  <span className="px-4 py-2 bg-[#00D4FF] text-white text-xs font-bold rounded-lg">{form.cta1Text}</span>
+                  <span className="px-4 py-2 bg-gold text-white text-xs font-bold rounded-lg">{form.cta1Text}</span>
                   <span className="px-4 py-2 bg-white/10 border border-white/20 text-white text-xs font-medium rounded-lg">{form.cta2Text}</span>
                 </div>
               </div>

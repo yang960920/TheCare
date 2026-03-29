@@ -38,7 +38,7 @@ export default function AdminAcademyPage() {
   return (
     <>
       <PageHeader title="아카데미 관리" description="수강 과정을 등록하고 관리합니다">
-        <button onClick={openNew} className="flex items-center gap-2 px-4 py-2.5 bg-cyan-600 text-white rounded-xl text-sm font-medium hover:bg-cyan-700 transition-colors">
+        <button onClick={openNew} className="flex items-center gap-2 px-4 py-2.5 bg-gold text-white rounded-xl text-sm font-medium hover:bg-gold-dark transition-colors">
           <Plus size={16} /> 과정 등록
         </button>
       </PageHeader>
@@ -48,8 +48,8 @@ export default function AdminAcademyPage() {
         {courses.map((c) => (
           <div key={c.id} className={`bg-white rounded-xl border p-5 ${c.visible ? "border-slate-200" : "border-dashed border-slate-300 opacity-60"}`}>
             <div className="flex items-start justify-between mb-3">
-              <div className="w-10 h-10 rounded-lg bg-cyan-50 flex items-center justify-center">
-                <GraduationCap size={20} className="text-cyan-600" />
+              <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center">
+                <GraduationCap size={20} className="text-gold" />
               </div>
               <div className="flex items-center gap-1">
                 <button onClick={() => openEdit(c)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600"><Pencil size={14} /></button>
@@ -60,7 +60,7 @@ export default function AdminAcademyPage() {
             <p className="text-sm text-slate-500 mb-3 line-clamp-2">{c.description}</p>
             <div className="flex items-center justify-between text-xs text-slate-400">
               <span>{c.duration}</span>
-              <span className="font-semibold text-cyan-600">{c.price}</span>
+              <span className="font-semibold text-gold">{c.price}</span>
             </div>
             <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
               <span className="text-xs text-slate-400">정원 {c.capacity}명</span>
@@ -73,9 +73,9 @@ export default function AdminAcademyPage() {
       {/* ── 수강 신청 목록 ── */}
       <div className="mt-10">
         <div className="flex items-center gap-2 mb-4">
-          <Users size={20} className="text-cyan-600" />
+          <Users size={20} className="text-gold" />
           <h2 className="text-lg font-bold text-slate-900">수강 신청 목록</h2>
-          <span className="ml-2 px-2 py-0.5 bg-cyan-50 text-cyan-600 text-xs font-bold rounded-full">{academyInquiries.length}</span>
+          <span className="ml-2 px-2 py-0.5 bg-gold/10 text-gold text-xs font-bold rounded-full">{academyInquiries.length}</span>
         </div>
 
         {academyInquiries.length === 0 ? (
@@ -102,14 +102,14 @@ export default function AdminAcademyPage() {
                     <td className="px-4 py-3 font-medium text-slate-900">{inq.customerName}</td>
                     <td className="px-4 py-3 text-slate-600">{inq.phone}</td>
                     <td className="px-4 py-3">
-                      <span className="text-xs px-2 py-0.5 bg-cyan-50 text-cyan-700 rounded-full">{inq.courseTitle}</span>
+                      <span className="text-xs px-2 py-0.5 bg-gold/10 text-gold-dark rounded-full">{inq.courseTitle}</span>
                     </td>
                     <td className="px-4 py-3 text-slate-500 text-xs max-w-[200px] truncate">{inq.memo || "-"}</td>
                     <td className="px-4 py-3">
                       <select
                         value={inq.status}
                         onChange={(e) => handleInquiryStatusChange(inq.id, e.target.value as AcademyInquiry["status"])}
-                        className="text-xs border border-slate-200 rounded-lg px-2 py-1 outline-none focus:border-cyan-500 bg-white"
+                        className="text-xs border border-slate-200 rounded-lg px-2 py-1 outline-none focus:border-gold bg-white"
                       >
                         <option>미확인</option><option>확인</option><option>완료</option>
                       </select>
@@ -124,15 +124,15 @@ export default function AdminAcademyPage() {
 
       <SlidePanel isOpen={isNew || !!editing} onClose={() => { setEditing(null); setIsNew(false); }} title={isNew ? "과정 등록" : "과정 수정"}>
         <div className="space-y-4">
-          <div><label className="block text-sm font-medium text-slate-700 mb-1">과정명</label><input type="text" value={form.title} onChange={(e) => setForm({...form, title: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500" /></div>
+          <div><label className="block text-sm font-medium text-slate-700 mb-1">과정명</label><input type="text" value={form.title} onChange={(e) => setForm({...form, title: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-gold" /></div>
           <div className="grid grid-cols-2 gap-3">
-            <div><label className="block text-sm font-medium text-slate-700 mb-1">수강 기간</label><input type="text" value={form.duration} onChange={(e) => setForm({...form, duration: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500" /></div>
-            <div><label className="block text-sm font-medium text-slate-700 mb-1">수강료</label><input type="text" value={form.price} onChange={(e) => setForm({...form, price: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500" /></div>
+            <div><label className="block text-sm font-medium text-slate-700 mb-1">수강 기간</label><input type="text" value={form.duration} onChange={(e) => setForm({...form, duration: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-gold" /></div>
+            <div><label className="block text-sm font-medium text-slate-700 mb-1">수강료</label><input type="text" value={form.price} onChange={(e) => setForm({...form, price: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-gold" /></div>
           </div>
-          <div><label className="block text-sm font-medium text-slate-700 mb-1">정원</label><input type="number" value={form.capacity} onChange={(e) => setForm({...form, capacity: Number(e.target.value)})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500" /></div>
-          <div><label className="block text-sm font-medium text-slate-700 mb-1">과정 설명</label><textarea rows={3} value={form.description} onChange={(e) => setForm({...form, description: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500 resize-none" /></div>
+          <div><label className="block text-sm font-medium text-slate-700 mb-1">정원</label><input type="number" value={form.capacity} onChange={(e) => setForm({...form, capacity: Number(e.target.value)})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-gold" /></div>
+          <div><label className="block text-sm font-medium text-slate-700 mb-1">과정 설명</label><textarea rows={3} value={form.description} onChange={(e) => setForm({...form, description: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-gold resize-none" /></div>
           <div className="flex items-center justify-between"><span className="text-sm font-medium text-slate-700">노출 여부</span><ToggleSwitch checked={form.visible} onChange={() => setForm({...form, visible: !form.visible})} /></div>
-          <button onClick={handleSave} className="w-full py-2.5 bg-cyan-600 text-white rounded-xl text-sm font-medium hover:bg-cyan-700 transition-colors">저장</button>
+          <button onClick={handleSave} className="w-full py-2.5 bg-gold text-white rounded-xl text-sm font-medium hover:bg-gold-dark transition-colors">저장</button>
         </div>
       </SlidePanel>
 

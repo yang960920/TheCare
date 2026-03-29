@@ -45,7 +45,7 @@ export default function AdminPointsPage() {
   return (
     <>
       <PageHeader title="포인트·이벤트 관리" description="이벤트 배너 관리 및 포인트 적립 정책을 설정합니다">
-        <button onClick={openNew} className="flex items-center gap-2 px-4 py-2.5 bg-cyan-600 text-white rounded-xl text-sm font-medium hover:bg-cyan-700 transition-colors"><Plus size={16} /> 배너 등록</button>
+        <button onClick={openNew} className="flex items-center gap-2 px-4 py-2.5 bg-gold text-white rounded-xl text-sm font-medium hover:bg-gold-dark transition-colors"><Plus size={16} /> 배너 등록</button>
       </PageHeader>
 
       <DataTable columns={columns} data={events} />
@@ -53,8 +53,8 @@ export default function AdminPointsPage() {
       {/* 포인트 적립 정책 편집 */}
       <div className="mt-8 bg-white rounded-xl border border-slate-200 p-6">
         <h3 className="font-semibold text-slate-900 mb-3">포인트 적립 정책</h3>
-        <textarea rows={5} value={policyText} onChange={(e) => setPolicyText(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500 resize-none mb-3" />
-        <button onClick={handleSavePolicy} className="flex items-center gap-2 px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-700 transition-colors"><Save size={14} /> 정책 저장</button>
+        <textarea rows={5} value={policyText} onChange={(e) => setPolicyText(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-slate-200 text-sm outline-none focus:border-gold resize-none mb-3" />
+        <button onClick={handleSavePolicy} className="flex items-center gap-2 px-4 py-2 bg-gold text-white rounded-lg text-sm font-medium hover:bg-gold-dark transition-colors"><Save size={14} /> 정책 저장</button>
       </div>
 
       {/* 배너 등록/수정 모달 */}
@@ -74,7 +74,7 @@ export default function AdminPointsPage() {
                   </div>
                   <div><label className="block text-sm font-medium text-slate-700 mb-1">배경 컬러</label><input type="color" value={form.bgColor} onChange={(e) => setForm({...form, bgColor: e.target.value})} className="w-16 h-10 rounded-lg border border-slate-200 cursor-pointer" /></div>
                   <div className="flex items-center justify-between"><span className="text-sm font-medium text-slate-700">노출 여부</span><ToggleSwitch checked={form.visible} onChange={() => setForm({...form, visible: !form.visible})} /></div>
-                  <button onClick={handleSave} className="w-full py-2.5 bg-cyan-600 text-white rounded-xl text-sm font-medium hover:bg-cyan-700 transition-colors">저장</button>
+                  <button onClick={handleSave} className="w-full py-2.5 bg-gold text-white rounded-xl text-sm font-medium hover:bg-gold-dark transition-colors">저장</button>
                 </div>
               </div>
             </motion.div>

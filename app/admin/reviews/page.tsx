@@ -108,7 +108,7 @@ export default function AdminReviewsPage() {
   return (
     <>
       <PageHeader title="후기 관리" description="고객 후기를 관리하고 답변을 작성합니다">
-        <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 px-4 py-2.5 bg-cyan-600 text-white rounded-xl text-sm font-medium hover:bg-cyan-700 transition-colors">
+        <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 px-4 py-2.5 bg-gold text-white rounded-xl text-sm font-medium hover:bg-gold-dark transition-colors">
           <Plus size={16} />
           후기 등록
         </button>
@@ -118,13 +118,13 @@ export default function AdminReviewsPage() {
       <div className="flex flex-wrap gap-4 mb-6">
         <div className="flex items-center gap-2">
           <span className="text-xs text-slate-400 font-medium">서비스:</span>
-          <select value={serviceFilter} onChange={(e) => setServiceFilter(e.target.value)} className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:border-cyan-500">
+          <select value={serviceFilter} onChange={(e) => setServiceFilter(e.target.value)} className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:border-gold">
             {SERVICE_FILTERS.map((f) => <option key={f}>{f}</option>)}
           </select>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-slate-400 font-medium">별점:</span>
-          <select value={ratingFilter} onChange={(e) => setRatingFilter(e.target.value)} className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:border-cyan-500">
+          <select value={ratingFilter} onChange={(e) => setRatingFilter(e.target.value)} className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:border-gold">
             {RATING_FILTERS.map((f) => <option key={f}>{f}</option>)}
           </select>
         </div>
@@ -149,27 +149,27 @@ export default function AdminReviewsPage() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">고객명</label>
-                    <input type="text" value={newReview.customerName} onChange={(e) => setNewReview({...newReview, customerName: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500" />
+                    <input type="text" value={newReview.customerName} onChange={(e) => setNewReview({...newReview, customerName: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-gold" />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-1">서비스</label>
-                      <select value={newReview.serviceType} onChange={(e) => setNewReview({...newReview, serviceType: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500">
+                      <select value={newReview.serviceType} onChange={(e) => setNewReview({...newReview, serviceType: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-gold">
                         {SERVICE_FILTERS.filter(f => f !== "전체").map(f => <option key={f}>{f}</option>)}
                       </select>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-1">별점</label>
-                      <select value={newReview.rating} onChange={(e) => setNewReview({...newReview, rating: Number(e.target.value)})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500">
+                      <select value={newReview.rating} onChange={(e) => setNewReview({...newReview, rating: Number(e.target.value)})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-gold">
                         {[5,4,3,2,1].map(r => <option key={r} value={r}>{r}점</option>)}
                       </select>
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">후기 내용</label>
-                    <textarea rows={3} value={newReview.content} onChange={(e) => setNewReview({...newReview, content: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500 resize-none" />
+                    <textarea rows={3} value={newReview.content} onChange={(e) => setNewReview({...newReview, content: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-gold resize-none" />
                   </div>
-                  <button onClick={handleAddReview} className="w-full py-2.5 bg-cyan-600 text-white rounded-xl text-sm font-medium hover:bg-cyan-700 transition-colors">등록</button>
+                  <button onClick={handleAddReview} className="w-full py-2.5 bg-gold text-white rounded-xl text-sm font-medium hover:bg-gold-dark transition-colors">등록</button>
                 </div>
               </div>
             </motion.div>
@@ -202,7 +202,7 @@ export default function AdminReviewsPage() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">답변 내용</label>
                   <textarea rows={4} value={replyText} onChange={(e) => setReplyText(e.target.value)} placeholder="고객에게 전달할 답변을 작성하세요" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500 resize-none" />
                 </div>
-                <button onClick={handleSaveReply} className="w-full mt-4 py-2.5 bg-cyan-600 text-white rounded-xl text-sm font-medium hover:bg-cyan-700 transition-colors">답변 저장</button>
+                <button onClick={handleSaveReply} className="w-full mt-4 py-2.5 bg-gold text-white rounded-xl text-sm font-medium hover:bg-gold-dark transition-colors">답변 저장</button>
               </div>
             </motion.div>
           </>

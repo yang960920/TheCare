@@ -21,10 +21,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "파일이 없습니다" }, { status: 400 });
     }
 
-    // 파일 크기 제한 (5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    // 파일 크기 제한 (20MB)
+    if (file.size > 20 * 1024 * 1024) {
       return NextResponse.json(
-        { error: "파일 크기는 5MB 이하만 가능합니다" },
+        { error: "파일 크기는 20MB 이하만 가능합니다" },
         { status: 400 }
       );
     }

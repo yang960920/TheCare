@@ -115,18 +115,18 @@ export default function AdminQuotesPage() {
                 {/* 연락 이력 편집 */}
                 <div className="space-y-4">
                   <h4 className="font-semibold text-slate-900 flex items-center gap-2">
-                    <CalendarDays size={16} className="text-cyan-500" />
+                    <CalendarDays size={16} className="text-gold" />
                     연락 이력
                   </h4>
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">연락 드린 날짜</label>
-                    <input type="date" value={contactDate} onChange={(e) => setContactDate(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500" />
+                    <input type="date" value={contactDate} onChange={(e) => setContactDate(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-gold" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">메모 (상담 내용, 예약 내역 등)</label>
-                    <textarea rows={3} value={contactMemo} onChange={(e) => setContactMemo(e.target.value)} placeholder="연락 후 간단한 메모를 남겨주세요" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500 resize-none" />
+                    <textarea rows={3} value={contactMemo} onChange={(e) => setContactMemo(e.target.value)} placeholder="연락 후 간단한 메모를 남겨주세요" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-gold resize-none" />
                   </div>
-                  <button onClick={handleSaveContact} className="w-full flex items-center justify-center gap-2 py-2.5 bg-cyan-600 text-white rounded-xl text-sm font-medium hover:bg-cyan-700 transition-colors">
+                  <button onClick={handleSaveContact} className="w-full flex items-center justify-center gap-2 py-2.5 bg-gold text-white rounded-xl text-sm font-medium hover:bg-gold-dark transition-colors">
                     <Save size={14} /> 저장
                   </button>
                 </div>

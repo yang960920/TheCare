@@ -1,132 +1,251 @@
-/** Header.tsx — 글로벌 네비게이션 바 (GNB)
- * 
- *  기능:
- *  - 로고(좌측) + 메뉴 링크(우측) 배치
- *  - usePathname으로 현재 페이지 active 스타일 표시
- *  - 스크롤 시 배경 blur + 반투명 전환
- *  - 모바일: 햄버거 버튼 → 슬라이드 다운 메뉴
- *  - 로그인 상태에 따라 로그인/마이페이지 버튼 표시
+/** Header.tsx — 글로벌 네비게이션 바 (드롭다운 메가메뉴)
+ *
+ *  구조:
+ *  - THE CARE (로고) → 회사소개 직접 링크 (드롭다운 없음)
+ *  - 입주청소 / 줄눈시공 / 탄성코트 / 나노코팅 / 새집증후군 → 각 드롭다운
+ *  - 아카데미 / 고객센터 → 드롭다운
+ *  - 데스크탑: hover 드롭다운, 모바일: 아코디언
  */
 "use client";
 
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuthStore } from "@/store/authStore";
 
-/* ── 네비게이션 메뉴 항목 정의 ── */
-const NAV_ITEMS = [
-  { href: "/about", label: "회사소개" },
-  { href: "/reviews", label: "후기" },
-  { href: "/quote", label: "견적문의" },
-  { href: "/academy", label: "아카데미·수강신청" },
-  { href: "/points", label: "포인트 적립" },
+/* ── 네비게이션 메뉴 정의 ── */
+interface SubItem {
+  href: string;
+  label: string;
+}
+
+interface NavItem {
+  label: string;
+  href?: string;        // 직접 링크 (드롭다운 없을 때)
+  children?: SubItem[]; // 서브메뉴 (드롭다운)
+}
+
+const NAV_ITEMS: NavItem[] = [
+  {
+    label: "THE CARE",
+    href: "/about",
+  },
+  {
+    label: "입주청소",
+    children: [
+      { href: "/services/cleaning#info", label: "입주청소 안내" },
+      { href: "/services/cleaning#scope", label: "시공범위 및 특화서비스" },
+      { href: "/services/cleaning#cases", label: "시공사례" },
+    ],
+  },
+  {
+    label: "줄눈시공",
+    children: [
+      { href: "/services/grout#info", label: "줄눈시공 안내" },
+      { href: "/services/grout#premium", label: "프리미엄 에폭시 (빅라이언)" },
+      { href: "/services/grout#cases", label: "시공사례" },
+    ],
+  },
+  {
+    label: "탄성코트",
+    children: [
+      { href: "/services/elasticcoat#info", label: "탄성코트 안내" },
+      { href: "/services/elasticcoat#products", label: "제품 및 시공범위" },
+      { href: "/services/elasticcoat#cases", label: "시공사례" },
+    ],
+  },
+  {
+    label: "나노코팅",
+    children: [
+      { href: "/services/nanocoat#info", label: "나노코팅 안내" },
+      { href: "/services/nanocoat#scope", label: "시공범위" },
+      { href: "/services/nanocoat#cases", label: "시공사례" },
+    ],
+  },
+  {
+    label: "새집증후군",
+    children: [
+      { href: "/services/newsyndrome#info", label: "새집증후군 케어" },
+      { href: "/services/newsyndrome#method", label: "시공방식" },
+      { href: "/services/newsyndrome#cases", label: "시공사례" },
+    ],
+  },
+  {
+    label: "아카데미",
+    children: [
+      { href: "/academy#courses", label: "강의내용" },
+      { href: "/academy#apply", label: "수강신청" },
+      { href: "/academy#contact", label: "문의하기" },
+    ],
+  },
+  {
+    label: "고객센터",
+    children: [
+      { href: "/customer/notices", label: "공지사항" },
+      { href: "/customer/points", label: "포인트 신청/사용" },
+      { href: "/quote", label: "견적 및 예약 문의" },
+    ],
+  },
 ];
 
 export default function Header() {
-  const pathname = usePathname(); // 현재 경로 확인용
-  const [isScrolled, setIsScrolled] = useState(false); // 스크롤 상태 추적
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // 모바일 메뉴 열림/닫힘
-  const { user, isLoggedIn } = useAuthStore(); // 로그인 상태
+  const pathname = usePathname();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [mobileOpenSubs, setMobileOpenSubs] = useState<Set<string>>(new Set());
+  const dropdownTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  /* ── 스크롤 이벤트 리스너 등록 ── */
+  /* ── 스크롤 이벤트 ── */
   useEffect(() => {
-    const handleScroll = () => {
-      // 50px 이상 스크롤 시 헤더 배경 변경
-      setIsScrolled(window.scrollY > 50);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  /* ── 페이지 이동 시 모바일 메뉴 자동 닫기 ── */
+  /* ── 페이지 이동 시 메뉴 닫기 ── */
   useEffect(() => {
     setIsMobileMenuOpen(false);
+    setOpenDropdown(null);
+    setMobileOpenSubs(new Set());
   }, [pathname]);
 
-  /* ── 현재 경로와 메뉴 링크 비교하여 active 여부 반환 ── */
-  const isActive = (href: string) => pathname === href;
+  /* ── 경로 active 여부 ── */
+  const isActive = (item: NavItem) => {
+    if (item.href) return pathname === item.href;
+    return item.children?.some((c) => pathname.startsWith(c.href.split("#")[0])) ?? false;
+  };
+
+  /* ── 데스크탑 드롭다운 핸들러 ── */
+  const handleMouseEnter = (label: string) => {
+    if (dropdownTimeout.current) clearTimeout(dropdownTimeout.current);
+    setOpenDropdown(label);
+  };
+
+  const handleMouseLeave = () => {
+    dropdownTimeout.current = setTimeout(() => setOpenDropdown(null), 150);
+  };
+
+  /* ── 모바일 아코디언 토글 ── */
+  const toggleMobileSub = (label: string) => {
+    setMobileOpenSubs((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) next.delete(label);
+      else next.add(label);
+      return next;
+    });
+  };
+
+  /* ── 텍스트 색상 헬퍼 ── */
+  const getTextColor = (active: boolean) => {
+    if (active) return "text-gold";
+    return isScrolled ? "text-navy/70 hover:text-gold" : "text-white/80 hover:text-white";
+  };
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-        ? "header-blur shadow-sm" // 스크롤 시: 흰색 배경 + 블러
-        : "bg-transparent"                         // 최상단: 투명 배경
-        }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled ? "header-blur shadow-sm" : "bg-transparent"
+      }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
-
-          {/* ── 로고 영역 ── */}
+          {/* ── 로고 ── */}
           <Link href="/" className="flex-shrink-0 flex items-center">
             <Image
               src="/logo.png"
               alt="더케어 로고"
               width={555}
               height={219}
-              className={`h-[60px] md:h-[68px] w-auto object-contain transition-all duration-300 ${isScrolled
-                  ? "drop-shadow-[0_0_3px_rgba(180,140,50,0.7)] [filter:drop-shadow(0_0_1px_rgba(120,90,20,0.9))_drop-shadow(0_0_6px_rgba(200,160,60,0.4))]"
+              className={`h-[60px] md:h-[68px] w-auto object-contain transition-all duration-300 ${
+                isScrolled
+                  ? "drop-shadow-[0_0_3px_rgba(184,134,11,0.5)]"
                   : "drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]"
-                }`}
+              }`}
               priority
             />
           </Link>
 
-          {/* ── 데스크탑 네비게이션 메뉴 ── */}
-          <nav className="hidden lg:flex items-center gap-1">
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(item.href)
-                  ? "text-cyan bg-cyan/10"  // active 상태: 시안 색상 강조
-                  : isScrolled
-                    ? "text-navy/70 hover:text-navy hover:bg-navy/5" // 스크롤 시: 어두운 텍스트
-                    : "text-white/80 hover:text-white hover:bg-white/10" // 최상단: 밝은 텍스트
-                  }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+          {/* ── 데스크탑 네비게이션 ── */}
+          <nav className="hidden xl:flex items-center gap-0.5">
+            {NAV_ITEMS.map((item) => {
+              const active = isActive(item);
 
-            {/* ── 로그인 상태별 버튼 ── */}
-            {isLoggedIn && user ? (
-              <Link
-                href="/mypage"
-                className={`ml-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1.5 ${isActive("/mypage")
-                  ? "text-cyan bg-cyan/10"
-                  : isScrolled
-                    ? "text-navy/70 hover:text-navy hover:bg-navy/5"
-                    : "text-white/80 hover:text-white hover:bg-white/10"
-                  }`}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                {user.nickname}
-              </Link>
-            ) : (
-              <Link
-                href="/auth"
-                className="ml-2 px-5 py-2.5 bg-gradient-to-r from-cyan to-cyan-dark text-white text-sm font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan/25 transition-all duration-300"
-              >
-                로그인
-              </Link>
-            )}
+              /* 직접 링크 (THE CARE) */
+              if (item.href) {
+                return (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className={`px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${getTextColor(active)}`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              }
+
+              /* 드롭다운 메뉴 */
+              return (
+                <div
+                  key={item.label}
+                  className="relative"
+                  onMouseEnter={() => handleMouseEnter(item.label)}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <button
+                    className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${getTextColor(active)}`}
+                  >
+                    {item.label}
+                    <svg
+                      className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                        openDropdown === item.label ? "rotate-180" : ""
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {/* 드롭다운 패널 */}
+                  <AnimatePresence>
+                    {openDropdown === item.label && item.children && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute top-full left-0 mt-1 w-56 bg-white rounded-xl shadow-lg border border-slate-light/50 overflow-hidden z-50"
+                      >
+                        <div className="py-2">
+                          {item.children.map((child) => (
+                            <Link
+                              key={child.href}
+                              href={child.href}
+                              className="block px-4 py-2.5 text-sm text-navy/70 hover:text-gold hover:bg-gold-pale/30 transition-colors"
+                            >
+                              {child.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
           </nav>
 
           {/* ── 모바일 햄버거 버튼 ── */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`lg:hidden p-2 rounded-lg transition-colors ${isScrolled
-              ? "text-navy hover:bg-navy/5"
-              : "text-white hover:bg-white/10"
-              }`}
+            className={`xl:hidden p-2 rounded-lg transition-colors ${
+              isScrolled ? "text-navy hover:bg-navy/5" : "text-white hover:bg-white/10"
+            }`}
             aria-label="메뉴 열기/닫기"
           >
-            {/* 햄버거 아이콘 ↔ X 아이콘 전환 */}
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {isMobileMenuOpen ? (
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -142,44 +261,77 @@ export default function Header() {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}     // 초기 상태: 숨김
-            animate={{ opacity: 1, height: "auto" }} // 열릴 때: 자연스럽게 펼침
-            exit={{ opacity: 0, height: 0 }}          // 닫힐 때: 접히며 사라짐
-            className="lg:hidden overflow-hidden bg-white border-t border-slate-light/50"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="xl:hidden overflow-hidden bg-white border-t border-slate-light/50"
           >
-            <nav className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-1">
-              {NAV_ITEMS.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive(item.href)
-                    ? "text-cyan bg-cyan/10"
-                    : "text-navy/70 hover:text-navy hover:bg-navy/5"
-                    }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
+            <nav className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-0.5 max-h-[75vh] overflow-y-auto">
+              {NAV_ITEMS.map((item) => {
+                /* 직접 링크 */
+                if (item.href) {
+                  return (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      className={`px-4 py-3 rounded-lg text-sm font-semibold transition-colors ${
+                        isActive(item)
+                          ? "text-gold bg-gold-pale/30"
+                          : "text-navy/70 hover:text-gold hover:bg-gold-pale/20"
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                }
 
-              {/* 모바일 로그인/마이페이지 */}
-              {isLoggedIn && user ? (
-                <Link
-                  href="/mypage"
-                  className="mt-2 px-5 py-3 bg-gradient-to-r from-navy to-navy-light text-white text-sm font-semibold rounded-lg text-center flex items-center justify-center gap-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  {user.nickname}님 마이페이지
-                </Link>
-              ) : (
-                <Link
-                  href="/auth"
-                  className="mt-2 px-5 py-3 bg-gradient-to-r from-cyan to-cyan-dark text-white text-sm font-semibold rounded-lg text-center"
-                >
-                  로그인 / 회원가입
-                </Link>
-              )}
+                /* 아코디언 메뉴 */
+                const isOpen = mobileOpenSubs.has(item.label);
+                return (
+                  <div key={item.label}>
+                    <button
+                      onClick={() => toggleMobileSub(item.label)}
+                      className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-semibold transition-colors ${
+                        isActive(item)
+                          ? "text-gold bg-gold-pale/30"
+                          : "text-navy/70 hover:text-gold hover:bg-gold-pale/20"
+                      }`}
+                    >
+                      {item.label}
+                      <svg
+                        className={`w-4 h-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    <AnimatePresence>
+                      {isOpen && item.children && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="pl-6 pb-2 space-y-0.5">
+                            {item.children.map((child) => (
+                              <Link
+                                key={child.href}
+                                href={child.href}
+                                className="block px-4 py-2.5 text-sm text-navy/60 hover:text-gold rounded-lg transition-colors"
+                              >
+                                {child.label}
+                              </Link>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
             </nav>
           </motion.div>
         )}

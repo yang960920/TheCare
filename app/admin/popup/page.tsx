@@ -43,29 +43,29 @@ export default function AdminPopupPage() {
   return (
     <>
       <PageHeader title="팝업·공지 관리" description="홈페이지 팝업과 공지사항을 관리합니다">
-        <button onClick={openNew} className="flex items-center gap-2 px-4 py-2.5 bg-cyan-600 text-white rounded-xl text-sm font-medium hover:bg-cyan-700 transition-colors"><Plus size={16} /> 팝업 등록</button>
+        <button onClick={openNew} className="flex items-center gap-2 px-4 py-2.5 bg-gold text-white rounded-xl text-sm font-medium hover:bg-gold-dark transition-colors"><Plus size={16} /> 팝업 등록</button>
       </PageHeader>
 
       <DataTable columns={columns} data={popups} />
 
       <SlidePanel isOpen={isNew || !!editing} onClose={() => { setEditing(null); setIsNew(false); }} title={isNew ? "팝업 등록" : "팝업 수정"}>
         <div className="space-y-4">
-          <div><label className="block text-sm font-medium text-slate-700 mb-1">제목</label><input type="text" value={form.title} onChange={(e) => setForm({...form, title: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500" /></div>
-          <div><label className="block text-sm font-medium text-slate-700 mb-1">내용</label><textarea rows={4} value={form.content} onChange={(e) => setForm({...form, content: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500 resize-none" /></div>
-          <div><label className="block text-sm font-medium text-slate-700 mb-1">이미지 URL</label><input type="text" value={form.imageUrl} onChange={(e) => setForm({...form, imageUrl: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500" /></div>
-          <div><label className="block text-sm font-medium text-slate-700 mb-1">링크 URL</label><input type="text" value={form.linkUrl} onChange={(e) => setForm({...form, linkUrl: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500" /></div>
+          <div><label className="block text-sm font-medium text-slate-700 mb-1">제목</label><input type="text" value={form.title} onChange={(e) => setForm({...form, title: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-gold" /></div>
+          <div><label className="block text-sm font-medium text-slate-700 mb-1">내용</label><textarea rows={4} value={form.content} onChange={(e) => setForm({...form, content: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-gold resize-none" /></div>
+          <div><label className="block text-sm font-medium text-slate-700 mb-1">이미지 URL</label><input type="text" value={form.imageUrl} onChange={(e) => setForm({...form, imageUrl: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-gold" /></div>
+          <div><label className="block text-sm font-medium text-slate-700 mb-1">링크 URL</label><input type="text" value={form.linkUrl} onChange={(e) => setForm({...form, linkUrl: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-gold" /></div>
           <div className="grid grid-cols-2 gap-3">
-            <div><label className="block text-sm font-medium text-slate-700 mb-1">시작일</label><input type="date" value={form.startDate} onChange={(e) => setForm({...form, startDate: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500" /></div>
-            <div><label className="block text-sm font-medium text-slate-700 mb-1">종료일</label><input type="date" value={form.endDate} onChange={(e) => setForm({...form, endDate: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500" /></div>
+            <div><label className="block text-sm font-medium text-slate-700 mb-1">시작일</label><input type="date" value={form.startDate} onChange={(e) => setForm({...form, startDate: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-gold" /></div>
+            <div><label className="block text-sm font-medium text-slate-700 mb-1">종료일</label><input type="date" value={form.endDate} onChange={(e) => setForm({...form, endDate: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-gold" /></div>
           </div>
           <div><label className="block text-sm font-medium text-slate-700 mb-1">노출 위치</label>
-            <select value={form.position} onChange={(e) => setForm({...form, position: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-cyan-500">
+            <select value={form.position} onChange={(e) => setForm({...form, position: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-gold">
               <option value="center">가운데</option><option value="top">상단 배너</option><option value="bottom">하단 배너</option>
             </select>
           </div>
           <div className="flex items-center justify-between"><span className="text-sm font-medium text-slate-700">오늘 하루 안 보기</span><ToggleSwitch checked={form.hideToday} onChange={() => setForm({...form, hideToday: !form.hideToday})} /></div>
           <div className="flex items-center justify-between"><span className="text-sm font-medium text-slate-700">노출 여부</span><ToggleSwitch checked={form.visible} onChange={() => setForm({...form, visible: !form.visible})} /></div>
-          <button onClick={handleSave} className="w-full py-2.5 bg-cyan-600 text-white rounded-xl text-sm font-medium hover:bg-cyan-700 transition-colors">저장</button>
+          <button onClick={handleSave} className="w-full py-2.5 bg-gold text-white rounded-xl text-sm font-medium hover:bg-gold-dark transition-colors">저장</button>
         </div>
       </SlidePanel>
 

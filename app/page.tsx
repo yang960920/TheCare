@@ -1,138 +1,261 @@
-/** app/page.tsx — 홈 페이지 (메인)
+/** app/page.tsx — 홈 페이지 (메인) — THE CARE v2
  *
  *  섹션 구성:
- *  1. 히어로 — 대형 헤드라인 + CTA 버튼 2개
- *  2. 서비스 요약 — 5개 서비스 카드 (줄눈/청소/탄성/나노코팅/새집증후군)
- *  3. 고객 후기 미리보기 — 3개 리뷰 카드
- *  4. 아카데미 배너 — 교육 과정 안내 유도
- *  5. 포인트 적립 이벤트 배너
+ *  1. 히어로 — DB 데이터 기반 헤드라인 + CTA (관리자 편집 반영)
+ *  2. 서비스 요약 — 5개 서비스 카드
+ *  3. 숫자로 보는 더케어 — DB 통계 기반 (관리자 편집 반영)
+ *  4. 시공사례 미리보기 — 최신 Before/After
+ *  5. 견적문의 CTA 배너
  */
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import ServiceCard from "@/components/ui/ServiceCard";
-import ReviewCard from "@/components/ui/ReviewCard";
+import { useEffect, useState } from "react";
 
-/* ── 서비스명 → 아이콘 매핑 ── */
-const SERVICE_ICONS: Record<string, React.ReactNode> = {
-  "줄눈 시공": (<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" /></svg>),
-  "입주 청소": (<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>),
-  "탄성 코트": (<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>),
-  "나노 코팅": (<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>),
-  "새집증후군 제거": (<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>),
+/* ── 5개 서비스 항목 ── */
+const SERVICES = [
+  {
+    title: "입주 청소",
+    description: "신축·이사 전후 청소 서비스. 공사 먼지, 미세 분진까지 깔끔하게.",
+    href: "/services/cleaning",
+    icon: (
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+    ),
+  },
+  {
+    title: "줄눈 시공",
+    description: "케라폭시·빅라이언 프리미엄 에폭시로 곰팡이 없는 깨끗한 줄눈.",
+    href: "/services/grout",
+    icon: (
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+      </svg>
+    ),
+  },
+  {
+    title: "탄성 코트",
+    description: "결로·곰팡이 방지 탄성 코트. 바이오세라믹, 에어로겔 시공.",
+    href: "/services/elasticcoat",
+    icon: (
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+      </svg>
+    ),
+  },
+  {
+    title: "나노 코팅",
+    description: "발수·항균 나노 코팅. 물때 방지로 청소 시간을 획기적으로 단축.",
+    href: "/services/nanocoat",
+    icon: (
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+      </svg>
+    ),
+  },
+  {
+    title: "새집증후군 제거",
+    description: "포름알데히드·VOC 유해물질 측정 및 제거. 아이·임산부 필수.",
+    href: "/services/newsyndrome",
+    icon: (
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      </svg>
+    ),
+  },
+];
+
+/* ── 기본 통계 (DB 로드 전 폴백) ── */
+const DEFAULT_STATS = [
+  { number: "15,000+", label: "시공 완료 건수" },
+  { number: "98%", label: "고객 만족도" },
+  { number: "3년+", label: "업계 경력" },
+  { number: "200+", label: "전문 기술 인력" },
+];
+
+/* ── 기본 히어로 (DB 로드 전 폴백) ── */
+const DEFAULT_HERO = {
+  headline: "깨끗한 공간,\n건강한 생활의\n시작",
+  subCopy: "입주 청소부터 줄눈 시공, 나노 코팅까지.\n더케어가 완벽한 클리닝을 약속합니다.",
+  cta1Text: "무료 견적 받기",
+  cta1Link: "/quote",
+  cta2Text: "회사 소개",
+  cta2Link: "/about",
+  bgImageUrl: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1920&q=80",
 };
-const DEFAULT_SVC_ICON = (<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>);
 
-/* ── 타입 정의 ── */
-interface HeroData { headline: string; subCopy: string; cta1Text: string; cta1Link: string; cta2Text: string; cta2Link: string; bgImageUrl: string; }
-interface Review { id: string; customerName: string; rating: number; serviceType: string; content: string; visible: boolean; }
-interface Stat { label: string; value: string; }
-interface ServiceData { id: string; name: string; summary: string; description: string; visible: boolean; order: number; }
-
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- *  메인 홈 페이지 컴포넌트
- * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 export default function HomePage() {
-  const [hero, setHero] = useState<HeroData | null>(null);
-  const [services, setServices] = useState<ServiceData[]>([]);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [stats, setStats] = useState<Stat[]>([]);
+  const [hero, setHero] = useState(DEFAULT_HERO);
+  const [stats, setStats] = useState(DEFAULT_STATS);
 
+  /* DB에서 히어로 & 회사 정보 로드 */
   useEffect(() => {
-    fetch("/api/hero").then(r => r.json()).then((data: HeroData) => {
-      setHero(data);
-    }).catch(() => {});
-    fetch("/api/services").then(r => r.json()).then((data: ServiceData[]) => {
-      setServices(data.filter(s => s.visible).sort((a, b) => a.order - b.order));
-    }).catch(() => {});
-    fetch("/api/reviews").then(r => r.json()).then((data: Review[]) => {
-      setReviews(data.filter(r => r.visible).slice(0, 3));
-    }).catch(() => {});
-    fetch("/api/company").then(r => r.json()).then(data => {
-      if (data.stats) setStats(data.stats);
-    }).catch(() => {});
+    fetch("/api/hero")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data && data.headline) setHero(data);
+      })
+      .catch(() => {/* 폴백 유지 */});
+
+    fetch("/api/company")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data && data.stats && data.stats.length > 0) {
+          setStats(data.stats.map((s: { label: string; value: string }) => ({
+            number: s.value,
+            label: s.label,
+          })));
+        }
+      })
+      .catch(() => {/* 폴백 유지 */});
   }, []);
+
+  /* 헤드라인 줄바꿈 처리 */
+  const headlineLines = hero.headline.split("\n");
 
   return (
     <>
-      {/* ═══════════════════════════════════════════════
-       *  섹션 1: 히어로 — 대형 비주얼 + CTA
-       * ═══════════════════════════════════════════════ */}
+      {/* ═══ 히어로 섹션 ═══ */}
       <section className="relative z-0 min-h-screen flex items-center overflow-hidden">
-        {/* 배경 이미지 */}
-        <Image
-          src={hero?.bgImageUrl || "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1920&q=80"}
-          alt="청소 전문 서비스 히어로 이미지"
-          fill
-          className="object-cover pointer-events-none"
-          priority
-        />
-        {/* 어두운 오버레이 (텍스트 가독성 확보) */}
+        {hero.bgImageUrl && (
+          <Image
+            src={hero.bgImageUrl}
+            alt="더케어 프리미엄 청소 서비스"
+            fill
+            className="object-cover pointer-events-none"
+            priority
+          />
+        )}
+        {/* 어두운 오버레이 */}
         <div className="absolute inset-0 bg-gradient-to-r from-navy/90 via-navy/70 to-navy/50 pointer-events-none" />
 
-        {/* 히어로 콘텐츠 — API 데이터 로드 후에만 표시 */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
-            animate={hero ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="max-w-2xl"
+            className="max-w-3xl"
           >
             {/* 상단 라벨 */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
-              animate={hero ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-6"
+              className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-gold/30 rounded-full px-4 py-1.5 mb-6"
             >
-              <span className="w-2 h-2 rounded-full bg-cyan animate-pulse" />
-              <span className="text-white/80 text-sm font-medium">프리미엄 청소 전문 기업</span>
+              <span className="w-2 h-2 rounded-full bg-gold animate-pulse" />
+              <span className="text-gold-pale text-sm font-medium">프리미엄 청소 전문 기업</span>
             </motion.div>
 
-            {/* 메인 헤드라인 */}
-            <h1 className="font-display font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-tight mb-6">
-              {(hero?.headline || "").split(",").map((part, i) => (
-                <span key={i}>
-                  {i > 0 && <br />}
-                  {part.trim()}
-                </span>
-              ))}
+            {/* 메인 헤드라인 — THE CARE 항상 마지막 단독 줄 */}
+            <h1 className="font-display font-black text-4xl sm:text-5xl md:text-6xl lg:text-6xl text-white leading-[1.15] mb-6">
+              {(() => {
+                const full = (hero.headline || "").replace(/^[""]|[""]$/g, "");
+
+                // "THE CARE" 앞에서 분리 (쉼표·공백 포함)
+                const tcIdx = full.lastIndexOf("THE CARE");
+                if (tcIdx > 0) {
+                  // 앞부분 ("보이지 않는 곳까지 책임지는 프리미엄 입주 케어, " 등)
+                  const before = full.slice(0, tcIdx).replace(/,?\s*$/, "").trim();
+                  // "까지" 뒷 공백에서 1·2행 분리, 없으면 중간 공백
+                  const kIdx = before.indexOf("까지 ");
+                  let splitAt = kIdx > 0 ? kIdx + 3 : Math.floor(before.length / 2);
+                  // 분리 지점 직후의 공백 위치로 보정
+                  const spIdx = before.indexOf(" ", splitAt - 1);
+                  if (spIdx > 0) splitAt = spIdx;
+                  const line1 = before.slice(0, splitAt).trim();
+                  const line2 = before.slice(splitAt).trim();
+                  return (
+                    <>
+                      <span className="block">{line1}</span>
+                      <span className="block">{line2},</span>
+                      <span className="block gradient-text">THE CARE</span>
+                    </>
+                  );
+                }
+
+                // THE CARE 없는 일반 케이스 — 2줄 분리
+                const mid = Math.floor(full.length / 2);
+                const splitIdx = full.lastIndexOf(" ", mid + 6) || mid;
+                return (
+                  <>
+                    <span className="block">{full.slice(0, splitIdx).trim()}</span>
+                    <span className="block gradient-text">{full.slice(splitIdx).trim()}</span>
+                  </>
+                );
+              })()}
             </h1>
 
-            {/* 서브카피 */}
-            <p className="text-white/70 text-lg md:text-xl leading-relaxed mb-8 max-w-lg">
-              {(hero?.subCopy || "").split("\n").map((line, i) => (
-                <span key={i}>{i > 0 && <br />}{line}</span>
-              ))}
-            </p>
+            {/* ── 서브카피 + CTA 리디자인 ── */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.4 }}
+            >
+              {/* 골드 구분선 */}
+              <div className="flex items-center gap-3 mb-5">
+                <div className="h-px w-8 bg-gold" />
+                <span className="text-gold text-xs font-semibold tracking-widest uppercase">The Care Promise</span>
+              </div>
 
-            {/* CTA 버튼 2개 */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              {/* 견적문의 (주요 CTA) */}
-              <Link
-                href={hero?.cta1Link || "/quote"}
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-cyan to-cyan-dark text-white font-bold rounded-xl hover:shadow-xl hover:shadow-cyan/30 transition-all duration-300 text-base"
-              >
-                {hero?.cta1Text || "무료 견적 받기"}
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
-              {/* 보조 CTA */}
-              <Link
-                href={hero?.cta2Link || "/about"}
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-xl hover:bg-white/20 transition-all duration-300 text-base"
-              >
-                {hero?.cta2Text || "서비스 둘러보기"}
-              </Link>
-            </div>
+              {/* 인용구 스타일 강조 문구 */}
+              <p className="text-white font-semibold text-base md:text-lg leading-snug mb-4">
+                &ldquo;청소가 아닌, 입주를 완성합니다&rdquo;
+              </p>
+
+              {/* 설명 텍스트 */}
+              <p className="text-white/60 text-sm md:text-base leading-relaxed mb-7 max-w-md">
+                입주청소, 줄눈, 탄성코트, 새집증후군, 나노코팅까지<br />
+                공간의 <span className="text-gold-pale font-medium">&lsquo;보이는 것과 보이지 않는 것&rsquo;</span>을 모두 케어하는<br />
+                프리미엄 입주 전문 브랜드입니다.
+              </p>
+
+              {/* 신뢰 뱃지 */}
+              <div className="flex flex-wrap gap-3 mb-8">
+                {[
+                  { icon: "✓", text: "전문 자격 보유" },
+                  { icon: "✓", text: "100% 책임 시공" },
+                  { icon: "✓", text: "사후 A/S 보장" },
+                ].map((badge) => (
+                  <span
+                    key={badge.text}
+                    className="inline-flex items-center gap-1.5 text-xs text-white/80 bg-white/10 border border-white/15 rounded-full px-3 py-1.5"
+                  >
+                    <span className="text-gold font-bold">{badge.icon}</span>
+                    {badge.text}
+                  </span>
+                ))}
+              </div>
+
+              {/* CTA 버튼 */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link
+                  href={hero.cta1Link || "/quote"}
+                  className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-gold to-gold-light text-white font-bold rounded-xl hover:shadow-xl hover:shadow-gold/40 hover:-translate-y-0.5 transition-all duration-300 text-sm"
+                >
+                  {hero.cta1Text || "무료 견적 받기"}
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </Link>
+                <Link
+                  href={hero.cta2Link || "/services/cleaning"}
+                  className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-transparent border border-white/30 text-white font-semibold rounded-xl hover:bg-white/10 hover:border-white/50 transition-all duration-300 text-sm"
+                >
+                  {hero.cta2Text || "서비스 둘러보기"}
+                  <svg className="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
+            </motion.div>
           </motion.div>
         </div>
 
-        {/* 히어로 하단 웨이브 장식 */}
+        {/* 하단 웨이브 */}
         <div className="absolute bottom-0 left-0 right-0">
           <svg viewBox="0 0 1440 120" fill="none" className="w-full">
             <path
@@ -143,12 +266,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════
-       *  섹션 2: 서비스 요약 — 5개 서비스 카드
-       * ═══════════════════════════════════════════════ */}
+      {/* ═══ 서비스 요약 ═══ */}
       <section className="section-padding bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* 섹션 타이틀 */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -156,47 +276,56 @@ export default function HomePage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12 md:mb-16"
           >
-            <span className="text-cyan font-semibold text-sm tracking-wider uppercase">Our Services</span>
+            <span className="text-gold font-semibold text-sm tracking-wider uppercase">Our Services</span>
             <h2 className="font-display font-bold text-3xl md:text-4xl lg:text-5xl text-navy mt-3 mb-4">
               전문 시공 서비스
             </h2>
             <p className="text-navy/60 text-base md:text-lg max-w-2xl mx-auto">
-              10년 이상의 노하우와 전문 장비로 최상의 결과를 보장합니다
+              숙련된 전문가와 최신 장비로 최상의 결과를 보장합니다
             </p>
           </motion.div>
 
-          {/* 서비스 카드 그리드 (모바일: 1열, 태블릿: 2열, 데스크탑: 3열) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((svc, index) => (
-              <ServiceCard
-                key={svc.id}
-                icon={SERVICE_ICONS[svc.name] || DEFAULT_SVC_ICON}
-                title={svc.name}
-                description={svc.summary || svc.description}
-                index={index}
-              />
+            {SERVICES.map((service, index) => (
+              <motion.div
+                key={service.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <Link
+                  href={service.href}
+                  className="block bg-cream rounded-2xl p-6 md:p-8 hover-lift gold-border group"
+                >
+                  <div className="w-14 h-14 rounded-xl bg-gold/10 flex items-center justify-center mb-5 group-hover:bg-gold/20 transition-colors">
+                    <div className="text-gold w-7 h-7">{service.icon}</div>
+                  </div>
+                  <h3 className="font-display font-bold text-lg md:text-xl text-navy mb-3 group-hover:text-gold transition-colors">
+                    {service.title}
+                  </h3>
+                  <p className="text-navy/60 text-sm leading-relaxed mb-4">{service.description}</p>
+                  <span className="inline-flex items-center gap-1 text-gold text-sm font-semibold group-hover:gap-2 transition-all">
+                    자세히 보기
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                </Link>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════
-       *  섹션 3: 숫자로 보는 더케어 — 통계 배너
-       * ═══════════════════════════════════════════════ */}
+      {/* ═══ 통계 배너 (DB 기반) ═══ */}
       <section className="py-16 md:py-20 bg-navy relative overflow-hidden">
-        {/* 배경 데코레이션 */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan/5 rounded-full blur-3xl" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gold/5 rounded-full blur-3xl" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {/* 통계 항목들 (DB에서 로드) */}
-            {(stats.length > 0 ? stats : [
-              { value: "15,000+", label: "시공 완료 건수" },
-              { value: "98%", label: "고객 만족도" },
-              { value: "12년", label: "업계 경력" },
-              { value: "200+", label: "전문 기술 인력" },
-            ]).map((stat, index) => (
+            {stats.map((stat, index) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}
@@ -205,8 +334,8 @@ export default function HomePage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="text-center"
               >
-                <div className="font-display font-black text-3xl md:text-4xl lg:text-5xl text-cyan mb-2">
-                  {stat.value}
+                <div className="font-display font-black text-3xl md:text-4xl lg:text-5xl text-gold mb-2">
+                  {stat.number}
                 </div>
                 <div className="text-white/60 text-sm md:text-base">{stat.label}</div>
               </motion.div>
@@ -215,102 +344,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════
-       *  섹션 4: 고객 후기 미리보기 — 3개 리뷰 카드
-       * ═══════════════════════════════════════════════ */}
-      <section className="section-padding bg-cream">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* 섹션 타이틀 + 더보기 링크 */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-12"
-          >
-            <div>
-              <span className="text-cyan font-semibold text-sm tracking-wider uppercase">
-                Reviews
-              </span>
-              <h2 className="font-display font-bold text-3xl md:text-4xl text-navy mt-3">
-                고객님의 생생한 후기
-              </h2>
-            </div>
-            <Link
-              href="/reviews"
-              className="mt-4 sm:mt-0 text-cyan font-semibold text-sm flex items-center gap-1 hover:gap-2 transition-all"
-            >
-              전체 후기 보기
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </motion.div>
-
-          {/* 리뷰 카드 그리드 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {reviews.map((review, index) => (
-              <ReviewCard key={review.id} name={review.customerName} rating={review.rating} serviceType={review.serviceType} content={review.content} index={index} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════
-       *  섹션 5: 아카데미 배너 — 교육 과정 안내
-       * ═══════════════════════════════════════════════ */}
-      <section className="section-padding bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="relative rounded-3xl overflow-hidden"
-          >
-            {/* 배경 이미지 */}
-            <Image
-              src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=1200&q=80"
-              alt="더케어 아카데미 교육 배너"
-              width={1200}
-              height={400}
-              className="w-full h-64 md:h-80 object-cover"
-            />
-            {/* 오버레이 */}
-            <div className="absolute inset-0 bg-gradient-to-r from-navy/90 to-navy/60" />
-
-            {/* 배너 콘텐츠 */}
-            <div className="absolute inset-0 flex items-center">
-              <div className="px-8 md:px-12 lg:px-16 max-w-xl">
-                <span className="text-cyan font-semibold text-sm tracking-wider uppercase">
-                  Academy
-                </span>
-                <h2 className="font-display font-bold text-2xl md:text-3xl lg:text-4xl text-white mt-2 mb-4">
-                  더케어 아카데미에서
-                  <br />
-                  전문가로 성장하세요
-                </h2>
-                <p className="text-white/70 text-sm md:text-base mb-6">
-                  청소 전문 기술을 배우고 자격증을 취득하여 새로운 커리어를 시작해보세요.
-                </p>
-                <Link
-                  href="/academy"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan to-cyan-dark text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-cyan/25 transition-all duration-300 text-sm"
-                >
-                  수강 과정 보기
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </Link>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════
-       *  섹션 6: 포인트 적립 이벤트 배너
-       * ═══════════════════════════════════════════════ */}
+      {/* ═══ 견적문의 CTA ═══ */}
       <section className="py-16 md:py-20 bg-gradient-to-br from-cream to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -320,31 +354,29 @@ export default function HomePage() {
             transition={{ duration: 0.6 }}
             className="bg-gradient-to-r from-navy to-navy-light rounded-3xl p-8 md:p-12 lg:p-16 flex flex-col lg:flex-row items-center gap-8"
           >
-            {/* 좌측 텍스트 영역 */}
             <div className="flex-1 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 bg-cyan/10 border border-cyan/20 rounded-full px-4 py-1.5 mb-4">
-                <svg className="w-4 h-4 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+              <div className="inline-flex items-center gap-2 bg-gold/10 border border-gold/20 rounded-full px-4 py-1.5 mb-4">
+                <svg className="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                 </svg>
-                <span className="text-cyan text-sm font-medium">EVENT</span>
+                <span className="text-gold text-sm font-medium">FREE ESTIMATE</span>
               </div>
               <h2 className="font-display font-bold text-2xl md:text-3xl lg:text-4xl text-white mb-4">
-                서비스 이용하고
+                무료 견적 상담,
                 <br />
-                <span className="text-cyan">포인트</span> 적립하세요!
+                지금 바로 <span className="text-gold">신청</span>하세요
               </h2>
               <p className="text-white/60 text-sm md:text-base max-w-md mx-auto lg:mx-0">
-                시공 금액의 최대 5% 포인트 적립! 적립된 포인트는 다음 서비스에서 현금처럼 사용 가능합니다.
+                전화 한 통이면 전문 상담사가 맞춤 견적을 안내해 드립니다.
+                부담 없이 문의하세요.
               </p>
             </div>
-
-            {/* 우측 CTA 버튼 */}
             <div className="flex-shrink-0">
               <Link
-                href="/points"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-cyan to-cyan-dark text-white font-bold rounded-xl hover:shadow-xl hover:shadow-cyan/30 transition-all duration-300"
+                href="/quote"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-gold to-gold-light text-white font-bold rounded-xl hover:shadow-xl hover:shadow-gold/30 transition-all duration-300"
               >
-                자세히 알아보기
+                견적 문의하기
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>

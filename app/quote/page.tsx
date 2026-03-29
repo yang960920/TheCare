@@ -71,7 +71,7 @@ const SERVICES: ServiceInfo[] = [
   },
   {
     key: "sickHouse",
-    label: "새집증후군 제거",
+    label: "새집증후군",
     description: "유해물질 측정 및 제거 시공",
     icon: (
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-6 h-6">
@@ -257,7 +257,7 @@ export default function QuotePage() {
                           <div className={`font-bold text-lg ${areaSize === opt.value ? "text-navy" : "text-navy/70"}`}>
                             {opt.label}
                           </div>
-                          <div className="text-xs text-navy/40 mt-0.5">{opt.sub}</div>
+                          <div className="text-xs text-navy/60 mt-0.5">{opt.sub}</div>
                           {/* 선택 체크 */}
                           {areaSize === opt.value && (
                             <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-cyan flex items-center justify-center">
@@ -276,7 +276,7 @@ export default function QuotePage() {
                     <label className="flex items-center gap-2 text-sm font-semibold text-navy mb-3">
                       <span className="w-6 h-6 rounded-full bg-cyan/10 text-cyan text-xs font-bold flex items-center justify-center">2</span>
                       원하시는 서비스를 선택해주세요
-                      <span className="text-navy/40 text-xs font-normal">(복수 선택 가능)</span>
+                      <span className="text-navy/50 text-xs font-normal">(복수 선택 가능)</span>
                     </label>
                     <div className="space-y-3">
                       {SERVICES.map((svc) => {
@@ -317,7 +317,7 @@ export default function QuotePage() {
                               <div className={`font-bold text-base ${isChecked ? "text-navy" : "text-navy/70"}`}>
                                 {svc.label}
                               </div>
-                              <div className="text-xs text-navy/40 truncate">{svc.description}</div>
+                              <div className="text-xs text-navy/55 truncate">{svc.description}</div>
                             </div>
                           </button>
                         );
@@ -329,17 +329,17 @@ export default function QuotePage() {
                   <button
                     type="button"
                     onClick={handleEstimate}
-                    className="w-full py-4 bg-gradient-to-r from-cyan to-cyan-dark text-white font-bold rounded-xl hover:shadow-lg hover:shadow-cyan/25 transition-all duration-300 text-base"
+                    className="w-full py-4 bg-gradient-to-r from-gold to-gold-light text-white font-bold rounded-xl hover:shadow-lg hover:shadow-gold/25 transition-all duration-300 text-base"
                   >
                     견적 확인하기
                   </button>
 
                   {/* ── 안내 문구 ── */}
                   <div className="space-y-1.5 text-center">
-                    <p className="text-navy/40 text-xs">
-                      ※ 실제 견적은 현장 상담을 통해 확정됩니다
+                    <p className="text-navy/50 text-xs">
+                      ※ 실제 견적은 상담을 통해 확정됩니다
                     </p>
-                    <p className="text-navy/40 text-xs">
+                    <p className="text-navy/50 text-xs">
                       ※ 프리미엄 옵션 추가금은 별도 문의 바랍니다
                     </p>
                   </div>
@@ -406,8 +406,7 @@ export default function QuotePage() {
                   <div>
                     <p className="text-sm font-semibold text-navy mb-1">가견적 안내</p>
                     <p className="text-xs text-navy/60 leading-relaxed">
-                      본 페이지의 견적은 참고용 가견적이며, 실제 시공 금액은 현장 방문 상담 후 확정됩니다.
-                      프리미엄 옵션 및 특수 시공은 추가 비용이 발생할 수 있습니다.
+                      본 페이지의 견적은 참고용 가견적이며, 프리미엄 옵션 및 특수 시공 시 추가 비용이 발생할 수 있습니다.
                     </p>
                   </div>
                 </div>
@@ -501,8 +500,7 @@ export default function QuotePage() {
                       {/* 안내 사항 */}
                       <div className="mt-4 bg-white/60 backdrop-blur-sm rounded-xl p-4 text-sm text-navy/60 leading-relaxed">
                         <span className="text-amber-500 mr-1">⚠️</span>
-                        <span className="font-semibold text-navy/70">안내:</span> 위 금액은 참고용 가견적이며, 실제 금액은 현장 방문 상담 후 확정됩니다.
-                        프리미엄 옵션 및 특수 시공 시 추가 비용이 발생할 수 있습니다.
+                        <span className="font-semibold text-navy/70">안내:</span> 위 금액은 참고용 가견적이며, 프리미엄 옵션 및 특수 시공 시 추가 비용이 발생할 수 있습니다.
                       </div>
                     </div>
 

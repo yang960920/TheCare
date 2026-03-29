@@ -27,6 +27,9 @@ import {
   Menu,
   X,
   ChevronRight,
+  Camera,
+  Megaphone,
+  Coins,
 } from "lucide-react";
 import ToastContainer from "@/components/admin/Toast";
 import { useAdminStore } from "@/store/adminStore";
@@ -36,8 +39,11 @@ const MENU_ITEMS = [
   { href: "/admin", icon: LayoutDashboard, label: "대시보드" },
   { href: "/admin/hero", icon: ImageIcon, label: "히어로 관리" },
   { href: "/admin/services", icon: Wrench, label: "서비스 관리" },
+  { href: "/admin/cases", icon: Camera, label: "시공사례 관리" },
   { href: "/admin/reviews", icon: Star, label: "후기 관리" },
   { href: "/admin/academy", icon: GraduationCap, label: "아카데미 관리" },
+  { href: "/admin/notices", icon: Megaphone, label: "공지사항 관리" },
+  { href: "/admin/points-manage", icon: Coins, label: "포인트 신청관리" },
   { href: "/admin/points", icon: Gift, label: "포인트·이벤트" },
   { href: "/admin/quotes", icon: FileText, label: "견적 문의" },
   { href: "/admin/company", icon: Building2, label: "회사 정보" },
